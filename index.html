@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lookout · Find a cause near you</title>
+<meta name="description" content="Find nonprofits in Denver and Boulder that need your time, money, goods or skills.">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F1F5F6}
+a{color:#18303C}a:hover{color:#8A430E}
+button,input,select,textarea{font-family:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #2F6A90;outline-offset:2px}
+.stone{transition:transform .15s ease, box-shadow .15s ease}
+.stone:hover{transform:translateY(-2px)}
+.jl-short{display:none}
+@media (max-width: 900px){.rv-bg{display:none}}
+@media (prefers-reduced-motion: reduce){.stone{transition:none}.stone:hover{transform:none}}
+@media (max-width: 700px){
+.jl-long{display:none}.jl-short{display:inline}
+.hdr-link{display:none}
+[style*="max-width:1240px"]{padding-left:16px!important;padding-right:16px!important}
+h1{font-size:36px!important;line-height:1.08!important}
+h2{font-size:26px!important}
+h2#h-matches{font-size:34px!important}
+[role="group"][aria-label="Your selections so far"]{border-radius:16px!important}
+[role="group"][aria-label="Your selections so far"] > *{flex-basis:100%!important;border-right:0!important;border-bottom:1px solid rgba(24,48,60,0.12)}
+svg[aria-label^="Hairline panorama"] text,svg[aria-label^="Trail map"] text{display:none}
+.mlbl{font-size:9px!important;white-space:normal!important;width:60px;text-align:center;line-height:1.1}
+.mlbl.off{display:none!important}
+.mcount{display:none}
+[style*="margin-left:auto"]{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<template id="dc">
+
+<div style="font-family:'Archivo',system-ui,sans-serif;color:#18303C;background:linear-gradient(172deg,#DCEBF4 0%,#F1F5F6 48%,#F7EDE2 100%);min-height:1800px">
+
+
+<header style="background:rgba(255,255,255,0.7);border-bottom:1px solid rgba(24,48,60,0.14)">
+  <div style="max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:16px;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="position:relative" onKeyDown="{{menuKey}}">
+        <button type="button" onClick="{{toggleMenu}}" aria-expanded="{{menuExpanded}}" aria-controls="journey-menu" aria-label="{{menuAria}}" style="display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;background:#18303C;color:#FFFFFF;border:0;border-radius:999px;cursor:pointer;font-size:14px;font-weight:600">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{menuChevron}}"></path></svg>
+        </button>
+        <sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}">
+          <div id="journey-menu" style="position:absolute;top:calc(100% + 8px);left:0;z-index:50;width:300px;max-width:calc(100vw - 32px);box-sizing:border-box;background:#FFFFFF;border:1px solid #C9D6DC;border-radius:8px;box-shadow:0 12px 32px rgba(24,48,60,0.18);padding:10px;display:flex;flex-direction:column;gap:2px">
+            <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#4D6370;padding:6px 10px">User journey</span>
+            <sc-for list="{{steps}}" as="s" hint-placeholder-count="5">
+              <button type="button" onClick="{{s.go}}" aria-current="{{s.current}}" style="{{s.itemStyle}}"><span style="{{s.numStyle}}">{{s.n}}</span>{{s.label}}</button>
+            </sc-for>
+            <div style="height:1px;background:#DCE6EA;margin:6px 4px"></div>
+            <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#4D6370;padding:6px 10px">More</span>
+            <sc-for list="{{extras}}" as="s" hint-placeholder-count="2">
+              <button type="button" onClick="{{s.go}}" aria-current="{{s.current}}" style="{{s.itemStyle}}"><span style="{{s.numStyle}}">{{s.n}}</span>{{s.label}}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <button type="button" onClick="{{goHome}}" aria-label="Lookout home" style="display:inline-flex;align-items:center;gap:12px;background:none;border:0;padding:0;min-height:48px;cursor:pointer;color:#18303C">
+      <svg width="34" height="34" viewBox="0 0 30 30" aria-hidden="true"><path d="M2 24 L11 12 L16 18 L21 9 L28 24" fill="none" stroke="#18303C" stroke-width="1.4" stroke-linejoin="round"></path><circle cx="21" cy="5" r="2.2" fill="#E89A5B"></circle><path d="M2 27 H28" stroke="#9FB2BC" stroke-width="1"></path></svg><span style="font-family:'Archivo',sans-serif;font-size:26px;font-weight:300;letter-spacing:-0.03em;line-height:1">lookout</span>
+    </button>
+    </div>
+    <nav aria-label="Main" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px">
+      <button type="button" class="hdr-link" onClick="{{goHome}}" style="min-height:44px;padding:0 14px;background:none;border:0;font-size:15px;font-weight:600;color:#18303C;cursor:pointer">Find a cause</button>
+      <button type="button" class="hdr-link" onClick="{{goRatings}}" style="min-height:44px;padding:0 14px;background:none;border:0;font-size:15px;font-weight:600;color:#18303C;cursor:pointer">About the ratings</button>
+      <button type="button" class="hdr-link" onClick="{{goSuggest}}" style="min-height:44px;padding:0 14px;background:none;border:0;font-size:15px;font-weight:600;color:#18303C;cursor:pointer">Suggestions</button>
+      <button type="button" onClick="{{goShare}}" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;background:#18303C;border:0;border-radius:999px;font-size:15px;font-weight:600;color:#FFFFFF;cursor:pointer">Your list · {{savedCount}}</button>
+    </nav>
+  </div>
+</header>
+
+
+<!-- ============ 1 · HOME: two rivers meet ============ -->
+<sc-if value="{{isHome}}" hint-placeholder-val="{{true}}">
+<div>
+<section style="position:relative;overflow:hidden">
+  <div style="max-width:1240px;margin:0 auto;padding:48px 24px 0;display:flex;flex-direction:column;gap:14px">
+    <h1 style="margin:0;max-width:17ch;font-family:'Archivo',sans-serif;font-size:56px;line-height:1.04;letter-spacing:-0.04em;font-weight:200;text-wrap:balance">Make an impact on your community.</h1>
+    <p style="margin:0;max-width:56ch;font-size:18px;line-height:1.55;color:#2F4753">Match your time, money, spare goods or skills to Denver and Boulder organizations that need them.</p>
+    <div role="group" aria-label="Your selections so far" style="display:flex;flex-wrap:wrap;margin-top:8px;border:1px solid #9FB2BC;border-radius:999px;background:rgba(255,255,255,0.78);max-width:820px;overflow:hidden">
+      <div style="padding:10px 20px;display:grid;gap:1px;border-right:1px solid rgba(24,48,60,0.12);flex:1 1 170px;min-width:0"><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370">I can give</span><span style="font-size:16px;color:#18303C">{{giveText}}</span></div><div style="padding:10px 20px;display:grid;gap:1px;border-right:1px solid rgba(24,48,60,0.12);flex:1 1 170px;min-width:0"><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370">Cause</span><span style="font-size:16px;color:#18303C">{{causeText}}</span></div><div style="padding:10px 20px;display:grid;gap:1px;border-right:1px solid rgba(24,48,60,0.12);flex:1 1 170px;min-width:0"><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370">Near</span><span style="font-size:16px;color:#18303C">Denver metro</span></div>
+      <a href="#matches" style="display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:0 28px;background:#18303C;color:#F7FAFB;font-size:15px;font-weight:500;text-decoration:none">See matches</a>
+    </div>
+    <span style="font-size:13px;color:#4D6370">Choose below and these update.</span>
+  </div>
+  <div style="max-width:1240px;margin:0 auto;padding:0 24px">
+  <svg role="img" aria-label="Hairline panorama of the Front Range with markers for open needs in Boulder, Lafayette and Louisville, Aurora and Denver" viewBox="0 0 1100 260" style="display:block;width:100%;height:auto;margin-top:28px">
+  <defs><linearGradient id="haze" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#F7EDE2" stop-opacity="0"></stop><stop offset="1" stop-color="#F7EDE2" stop-opacity=".9"></stop></linearGradient></defs>
+  <path d="M0 150 L60 128 L110 138 L170 96 L215 118 L260 84 L300 108 L345 76 L392 104 L440 90 L490 112 L540 70 L585 98 L640 86 L690 110 L740 80 L790 104 L840 92 L900 118 L960 100 L1020 124 L1100 112" fill="none" stroke="#9FB2BC" stroke-width="1"></path>
+  <path d="M0 176 Q90 150 180 168 T360 160 T540 172 T720 158 T900 170 T1100 162" fill="none" stroke="#5E7480" stroke-width="1"></path>
+  <g fill="none" stroke="#C3D1D8" stroke-width="0.8"><path d="M0 196 Q275 186 550 196 T1100 192"></path><path d="M0 214 Q275 206 550 216 T1100 210"></path><path d="M0 232 Q275 226 550 234 T1100 230"></path></g>
+  <path d="M260 176 C330 200 420 190 520 214 S760 236 1100 226" fill="none" stroke="#5A8FB0" stroke-width="1.1"></path>
+  <rect x="0" y="180" width="1100" height="80" fill="url(#haze)"></rect>
+  <circle cx="880" cy="46" r="16" fill="none" stroke="#E89A5B" stroke-width="1"></circle>
+  <g font-family="IBM Plex Mono, monospace" font-size="12" fill="#18303C">
+    <circle cx="220" cy="192" r="10" fill="#F8DCC4"></circle><circle cx="220" cy="192" r="3.5" fill="#E89A5B"></circle><line x1="220" y1="188" x2="220" y2="140" stroke="#18303C" stroke-width="0.8"></line><text x="226" y="138">BOULDER · 7 open</text>
+    <circle cx="430" cy="206" r="10" fill="#F8DCC4"></circle><circle cx="430" cy="206" r="3.5" fill="#E89A5B"></circle><line x1="430" y1="202" x2="430" y2="150" stroke="#18303C" stroke-width="0.8"></line><text x="436" y="148">LAFAYETTE + LOUISVILLE · 6 open</text>
+    <circle cx="600" cy="214" r="3.5" fill="#4E7D6A"></circle><line x1="600" y1="210" x2="600" y2="176" stroke="#18303C" stroke-width="0.8"></line><text x="606" y="174">AURORA · 2 open</text>
+    <circle cx="800" cy="222" r="10" fill="#F8DCC4"></circle><circle cx="800" cy="222" r="3.5" fill="#E89A5B"></circle><line x1="800" y1="218" x2="800" y2="140" stroke="#18303C" stroke-width="0.8"></line><text x="806" y="138">DENVER · 57 open</text>
+    <text x="16" y="250" font-size="10" fill="#4D6370" letter-spacing="1">LOOKING EAST FROM LOOKOUT MTN · 7,377 FT</text>
+  </g>
+</svg>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;border-top:1px solid rgba(24,48,60,0.12);background:rgba(255,255,255,0.55)">
+    <div style="padding:16px 24px;flex:1 1 200px;display:grid;gap:2px;border-right:1px solid rgba(24,48,60,0.1)"><span style="font-family:'Archivo',sans-serif;font-weight:200;font-size:34px;letter-spacing:-0.04em;line-height:1.05;font-variant-numeric:tabular-nums">{{statOpen}}</span><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#4D6370">Open needs</span></div><div style="padding:16px 24px;flex:1 1 200px;display:grid;gap:2px;border-right:1px solid rgba(24,48,60,0.1)"><span style="font-family:'Archivo',sans-serif;font-weight:200;font-size:34px;letter-spacing:-0.04em;line-height:1.05;font-variant-numeric:tabular-nums">{{statSkills}}</span><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#4D6370">Need specific skills</span></div><div style="padding:16px 24px;flex:1 1 200px;display:grid;gap:2px;border-right:1px solid rgba(24,48,60,0.1)"><span style="font-family:'Archivo',sans-serif;font-weight:200;font-size:34px;letter-spacing:-0.04em;line-height:1.05;font-variant-numeric:tabular-nums">{{statGoods}}</span><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#4D6370">Collecting goods</span></div><div style="padding:16px 24px;flex:1 1 200px;display:grid;gap:2px;border-right:1px solid rgba(24,48,60,0.1)"><span style="font-family:'Archivo',sans-serif;font-weight:200;font-size:34px;letter-spacing:-0.04em;line-height:1.05;font-variant-numeric:tabular-nums">{{statMoney}}</span><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#4D6370">Money campaigns</span></div>
+  </div>
+  <div style="padding:10px 24px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.04em;color:#4D6370;max-width:1240px;margin:0 auto">Organizations come from the Lookout research list. Ways to help come from each organization’s website, checked Nov 24, 2026. Drive times from Golden are approximate.</div>
+</section>
+
+<section aria-labelledby="h-rivers" style="max-width:1240px;margin:0 auto;padding:40px 24px 16px;display:flex;flex-direction:column;gap:20px">
+  <div>
+    <p style="margin:0 0 4px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#4D6370">Step 1 · Plan your route</p>
+    <h2 id="h-rivers" style="margin:0;font-family:'Archivo',sans-serif;font-size:32px;letter-spacing:-0.02em;font-weight:300">Pick your peaks and trails</h2>
+    <p style="margin:6px 0 0;font-size:16px;color:#2F4753;max-width:62ch">Peaks are the causes you care about. Trails are the ways you can give. The map changes as you choose.</p>
+  </div>
+  <div style="border:1px solid #C9D6DC;border-radius:4px;background:linear-gradient(172deg,#DCEBF4 0%,#F1F5F6 55%,#F7EDE2 100%);overflow:hidden;padding:8px 8px 0;position:relative">
+    <svg role="img" aria-label="{{mapLabel}}" viewBox="0 0 1100 450" style="display:block;width:100%;height:auto">
+  <defs><linearGradient id="tmHaze" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#F7EDE2" stop-opacity="0"></stop><stop offset="1" stop-color="#F7EDE2" stop-opacity=".95"></stop></linearGradient></defs>
+  <circle cx="930" cy="58" r="18" fill="none" stroke="#E89A5B" stroke-width="1"></circle>
+  <path d="M0 210 L70 175 L130 190 L210 140 L270 170 L340 120 L410 160 L480 130 L560 170 L640 120 L720 165 L790 135 L870 175 L950 145 L1030 180 L1100 160" fill="none" stroke="#C3D1D8" stroke-width="1"></path>
+  <polygon points="{{pk0.pts}}" style="{{pk0.poly}}"></polygon><circle cx="{{pk0.cx}}" cy="{{pk0.cy}}" r="4.5" style="{{pk0.flag}}"></circle>
+  <polygon points="{{pk1.pts}}" style="{{pk1.poly}}"></polygon><circle cx="{{pk1.cx}}" cy="{{pk1.cy}}" r="4.5" style="{{pk1.flag}}"></circle>
+  <polygon points="{{pk2.pts}}" style="{{pk2.poly}}"></polygon><circle cx="{{pk2.cx}}" cy="{{pk2.cy}}" r="4.5" style="{{pk2.flag}}"></circle>
+  <polygon points="{{pk3.pts}}" style="{{pk3.poly}}"></polygon><circle cx="{{pk3.cx}}" cy="{{pk3.cy}}" r="4.5" style="{{pk3.flag}}"></circle>
+  <polygon points="{{pk4.pts}}" style="{{pk4.poly}}"></polygon><circle cx="{{pk4.cx}}" cy="{{pk4.cy}}" r="4.5" style="{{pk4.flag}}"></circle>
+  <polygon points="{{pk5.pts}}" style="{{pk5.poly}}"></polygon><circle cx="{{pk5.cx}}" cy="{{pk5.cy}}" r="4.5" style="{{pk5.flag}}"></circle><polygon points="{{pk6.pts}}" style="{{pk6.poly}}"></polygon><circle cx="{{pk6.cx}}" cy="{{pk6.cy}}" r="4.5" style="{{pk6.flag}}"></circle>
+  <rect x="0" y="330" width="1100" height="120" fill="url(#tmHaze)"></rect>
+  <g fill="none" stroke="#C3D1D8" stroke-width="0.8"><path d="M0 352 Q275 342 550 352 T1100 348"></path><path d="M0 376 Q275 368 550 378 T1100 372"></path><path d="M0 400 Q275 394 550 402 T1100 398"></path></g>
+  <path d="{{tr0.d}}" fill="none" style="{{tr0.line}}"></path><polygon points="{{tr0.mpts}}" style="{{tr0.mark}}"></polygon>
+  <path d="{{tr1.d}}" fill="none" style="{{tr1.line}}"></path><polygon points="{{tr1.mpts}}" style="{{tr1.mark}}"></polygon>
+  <path d="{{tr2.d}}" fill="none" style="{{tr2.line}}"></path><polygon points="{{tr2.mpts}}" style="{{tr2.mark}}"></polygon>
+  <path d="{{tr3.d}}" fill="none" style="{{tr3.line}}"></path><polygon points="{{tr3.mpts}}" style="{{tr3.mark}}"></polygon>
+  <circle cx="550" cy="434" r="5" fill="#18303C"></circle>
+  <g style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.08em;fill:#4D6370"><text x="562" y="438">TRAILHEAD</text><text x="16" y="440">LOOKING EAST FROM LOOKOUT MTN · ILLUSTRATIVE MAP</text></g>
+</svg>
+    <span class="{{pk0.cls}}" style="{{pk0.lbl}}">{{pk0.label}}</span><span class="{{pk1.cls}}" style="{{pk1.lbl}}">{{pk1.label}}</span><span class="{{pk2.cls}}" style="{{pk2.lbl}}">{{pk2.label}}</span><span class="{{pk3.cls}}" style="{{pk3.lbl}}">{{pk3.label}}</span><span class="{{pk4.cls}}" style="{{pk4.lbl}}">{{pk4.label}}</span><span class="{{pk5.cls}}" style="{{pk5.lbl}}">{{pk5.label}}</span><span class="{{pk6.cls}}" style="{{pk6.lbl}}">{{pk6.label}}</span><span class="mlbl" style="{{tr0.lbl}}">{{tr0.label}}</span><span class="mlbl" style="{{tr1.lbl}}">{{tr1.label}}</span><span class="mlbl" style="{{tr2.lbl}}">{{tr2.label}}</span><span class="mlbl" style="{{tr3.lbl}}">{{tr3.label}}</span><span class="mcount" style="position:absolute;left:16px;top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:#4D6370">{{mapCount}}</span>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:24px 32px">
+    <div role="group" aria-labelledby="g-peaks" style="flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:10px">
+      <h3 id="g-peaks" style="margin:0;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">Peaks · what matters to you</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+        <sc-for list="{{causes}}" as="c" hint-placeholder-count="6">
+          <button type="button" onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="{{c.style}}">
+            <span style="display:flex;flex-direction:column;gap:3px;text-align:left"><span style="font-family:'Archivo',sans-serif;font-size:18px;font-weight:500;line-height:1.15">{{c.name}}</span><span style="font-size:13px;color:#4D6370">{{c.meta}}</span></span>
+            <span style="{{c.markStyle}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{c.checkStyle}}"><path d="M20 6 9 17l-5-5"></path></svg></span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <div role="group" aria-labelledby="g-trails" style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:10px">
+      <h3 id="g-trails" style="margin:0;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">Trails · how you can give</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
+        <button type="button" onClick="{{wTime.toggle}}" aria-pressed="{{wTime.pressed}}" style="{{wTime.style}}">
+          <svg width="38" height="38" viewBox="0 0 44 44" fill="none" aria-hidden="true" style="flex:none"><circle cx="22" cy="22" r="21" fill="#E89A5B"></circle><circle cx="22" cy="22" r="9" stroke="#18303C" stroke-width="2.4"></circle><path d="M22 17v5l3 2" stroke="#18303C" stroke-width="2.4" stroke-linecap="round"></path></svg>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left"><span style="font-size:18px;font-weight:500">Time</span><span style="font-size:13px;line-height:1.4;color:#2F4753">Shifts and projects, solo or with friends</span></span>
+          <span style="{{wTime.markStyle}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{wTime.checkStyle}}"><path d="M20 6 9 17l-5-5"></path></svg></span>
+        </button>
+        <button type="button" onClick="{{wMoney.toggle}}" aria-pressed="{{wMoney.pressed}}" style="{{wMoney.style}}">
+          <svg width="38" height="38" viewBox="0 0 44 44" fill="none" aria-hidden="true" style="flex:none"><polygon points="22,1 43,22 22,43 1,22" fill="#D9B76E"></polygon><path d="M22 13v18M26 17.5h-6a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-7" stroke="#18303C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left"><span style="font-size:18px;font-weight:500">Money</span><span style="font-size:13px;line-height:1.4;color:#2F4753">Active campaigns, with what a gift buys</span></span>
+          <span style="{{wMoney.markStyle}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{wMoney.checkStyle}}"><path d="M20 6 9 17l-5-5"></path></svg></span>
+        </button>
+        <button type="button" onClick="{{wGoods.toggle}}" aria-pressed="{{wGoods.pressed}}" style="{{wGoods.style}}">
+          <svg width="38" height="38" viewBox="0 0 44 44" fill="none" aria-hidden="true" style="flex:none"><rect x="2" y="2" width="40" height="40" rx="6" fill="#3B6755"></rect><path d="M31 17.5 22 13l-9 4.5v9l9 4.5 9-4.5v-9ZM13 17.5l9 4.5 9-4.5M22 22v9" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left"><span style="font-size:18px;font-weight:500">Goods</span><span style="font-size:13px;line-height:1.4;color:#2F4753">Exact items, drop-off hours, what they can't take</span></span>
+          <span style="{{wGoods.markStyle}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{wGoods.checkStyle}}"><path d="M20 6 9 17l-5-5"></path></svg></span>
+        </button>
+        <button type="button" onClick="{{wSkills.toggle}}" aria-pressed="{{wSkills.pressed}}" style="{{wSkills.style}}">
+          <svg width="38" height="38" viewBox="0 0 44 44" fill="none" aria-hidden="true" style="flex:none"><polygon points="22,1 40,11.5 40,32.5 22,43 4,32.5 4,11.5" fill="#7FAECB"></polygon><rect x="13" y="17" width="18" height="13" rx="2" stroke="#18303C" stroke-width="2.2"></rect><path d="M18 17v-2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#18303C" stroke-width="2.2" stroke-linecap="round"></path></svg>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left"><span style="font-size:18px;font-weight:500">Skills</span><span style="font-size:13px;line-height:1.4;color:#2F4753">Scoped pro bono projects and board seats</span></span>
+          <span style="{{wSkills.markStyle}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{wSkills.checkStyle}}"><path d="M20 6 9 17l-5-5"></path></svg></span>
+        </button>
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="matches" aria-labelledby="h-matches" style="max-width:1240px;margin:0 auto;padding:24px 24px 88px;display:flex;flex-direction:column;gap:22px">
+  <div style="border:1px solid #C9D6DC;border-radius:4px;background:rgba(255,255,255,0.85);padding:28px;display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;flex-wrap:wrap;gap:16px 32px;align-items:flex-end;justify-content:space-between">
+      <div>
+        <p style="margin:0 0 4px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#4D6370">Your summit view</p>
+        <h2 id="h-matches" style="margin:0;font-family:'Archivo',sans-serif;font-size:44px;letter-spacing:-0.03em;font-weight:200;line-height:1.05">{{matchHeadline}}</h2>
+        <p style="margin:8px 0 0;font-size:16px;color:#2F4753;max-width:64ch">{{matchSub}}</p>
+        <p style="margin:6px 0 0;font-size:14px;color:#4D6370">{{matchFacts}}</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+        <button type="button" onClick="{{goResults}}" style="display:inline-flex;align-items:center;gap:10px;min-height:56px;padding:0 30px;background:#18303C;color:#F7FAFB;border:0;border-radius:999px;font-size:17px;font-weight:600;cursor:pointer">Explore these needs
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </button>
+        <span style="font-size:13px;color:#4D6370">Next: filter by place, time and group size.</span>
+      </div>
+    </div>
+    <sc-if value="{{noMatches}}" hint-placeholder-val="{{false}}">
+      <div style="padding:20px;border-radius:4px;background:#FFFFFF;border:1px dashed #9FB2BC;font-size:16px;line-height:1.5">No organization fits all of that yet. Try adding another peak or another trail.</div>
+    </sc-if>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">Where they are</h3>
+        <sc-for list="{{townRows}}" as="t" hint-placeholder-count="4">
+          <div style="display:grid;gap:5px">
+            <div style="display:flex;justify-content:space-between;gap:12px;font-size:15px"><span>{{t.label}}</span><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;color:#4D6370">{{t.count}}</span></div>
+            <div style="height:6px;background:#E3EEF2;border-radius:999px;overflow:hidden"><div style="{{t.bar}}"></div></div>
+          </div>
+        </sc-for>
+        <span style="font-size:13px;color:#4D6370">{{closestText}}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">What they need</h3>
+        <sc-for list="{{needRows}}" as="n" hint-placeholder-count="4">
+          <div style="display:grid;gap:5px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:15px"><span style="display:inline-flex;align-items:center;gap:10px"><span style="{{n.shape}}"></span>{{n.label}}</span><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;color:#4D6370">{{n.count}}</span></div>
+            <div style="height:6px;background:#E3EEF2;border-radius:999px;overflow:hidden"><div style="{{n.bar}}"></div></div>
+          </div>
+        </sc-for>
+        <span style="font-size:13px;color:#4D6370">Faded rows are trails you haven't picked.</span>
+      </div>
+      <div style="grid-column:1 / -1;display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">Organizations included</h3>
+        <ul style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 24px">
+          <sc-for list="{{orgChips}}" as="o" hint-placeholder-count="4">
+            <li style="display:flex;flex-direction:column;gap:1px;padding-bottom:8px;border-bottom:1px solid #DCE6EA"><button type="button" onClick="{{o.open}}" style="align-self:flex-start;min-height:32px;padding:0;background:none;border:0;cursor:pointer;text-align:left;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">{{o.name}}</button><span style="font-size:13px;color:#4D6370">{{o.place}}</span></li>
+          </sc-for>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<section aria-labelledby="h-wip" style="max-width:1240px;margin:0 auto;padding:8px 24px 64px">
+  <div style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:28px;display:flex;flex-wrap:wrap;gap:20px 32px;align-items:center;justify-content:space-between">
+    <div style="flex:1 1 520px;min-width:0;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">A work in progress</span>
+      <h2 id="h-wip" style="margin:0;font-family:'Archivo',sans-serif;font-size:28px;letter-spacing:-0.01em;font-weight:400">Help us build what comes next</h2>
+      <p style="margin:0;font-size:17px;line-height:1.55;color:#2B414D;max-width:720px">Lookout’s goal is to make it easier for locals to connect with causes and make a positive impact on their communities. We had to start somewhere, so we know the list is small for now. We welcome your suggestions on organizations to add, features to build and ways to make it more useful.</p>
+    </div>
+    <button type="button" onClick="{{goSuggest}}" style="flex:none;min-height:52px;padding:0 24px;border:0;border-radius:999px;background:#18303C;color:#FFFFFF;font-size:16px;font-weight:700;cursor:pointer">Send a suggestion</button>
+  </div>
+</section>
+</div>
+</sc-if>
+
+<!-- ============ 2 · RESULTS: filter bar + need cards ============ -->
+<sc-if value="{{isResults}}" hint-placeholder-val="{{false}}">
+<main style="max-width:1240px;margin:0 auto;padding:24px 24px 72px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <button type="button" onClick="{{goHome}}" style="align-self:flex-start;min-height:44px;padding:0;background:none;border:0;color:#18303C;font-size:15px;font-weight:600;cursor:pointer">← Back to causes</button>
+    <h1 id="h-results" style="margin:0;font-family:'Archivo',sans-serif;font-size:36px;letter-spacing:-0.01em;font-weight:300">{{resultsTitle}}</h1>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <sc-for list="{{pickedCauses}}" as="p" hint-placeholder-count="1"><span style="{{p.style}}">{{p.label}}</span></sc-for>
+      <button type="button" onClick="{{goHome}}" style="min-height:40px;padding:0 8px;background:none;border:0;cursor:pointer;font-size:14px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">Change causes</button>
+    </div>
+  </div>
+
+  <div role="search" aria-label="Filters" style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:12px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px">
+    <div style="display:flex;flex-wrap:wrap;gap:6px" role="group" aria-label="Ways to help">
+      <button type="button" onClick="{{tTime.toggle}}" aria-pressed="{{tTime.pressed}}" style="{{tTime.pill}}"><span style="{{tTime.shape}}"></span>Time</button>
+      <button type="button" onClick="{{tMoney.toggle}}" aria-pressed="{{tMoney.pressed}}" style="{{tMoney.pill}}"><span style="{{tMoney.shape}}"></span>Money</button>
+      <button type="button" onClick="{{tGoods.toggle}}" aria-pressed="{{tGoods.pressed}}" style="{{tGoods.pill}}"><span style="{{tGoods.shape}}"></span>Goods</button>
+      <button type="button" onClick="{{tSkills.toggle}}" aria-pressed="{{tSkills.pressed}}" style="{{tSkills.pill}}"><span style="{{tSkills.shape}}"></span>Skills</button>
+    </div>
+    <span aria-hidden="true" style="width:1px;align-self:stretch;background:#DCE6EA"></span>
+    <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#4D6370;min-width:0">Where<select value="{{whereSel}}" onChange="{{pickWhere}}" style="{{sel.whereSel}}"><option value="any">Anywhere</option><option value="d15">Within 15 min of Golden</option><option value="d30">Within 30 min</option><option value="d45">Within 45 min</option><option value="Denver">In Denver</option><option value="Aurora">In Aurora</option><option value="Boulder">In Boulder</option><option value="Lafayette">In Lafayette</option><option value="Louisville">In Louisville</option></select></label>
+    <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#4D6370;min-width:0">When<select value="{{whenSel}}" onChange="{{pickWhen}}" style="{{sel.whenSel}}"><option value="Any">Any time</option><option value="Weekdays">Weekdays</option><option value="Evenings">Evenings</option><option value="Weekends">Weekends</option></select></label>
+    <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#4D6370;min-width:0">How often<select value="{{oftenSel}}" onChange="{{pickOften}}" style="{{sel.oftenSel}}"><option value="Any">Any</option><option value="One-time">One-time</option><option value="Weekly">Weekly</option><option value="Monthly">Monthly</option><option value="Seasonal">Seasonal</option></select></label>
+    <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#4D6370;min-width:0">Who<select value="{{whoSel}}" onChange="{{pickWho}}" style="{{sel.whoSel}}"><option value="Any">Anyone</option><option value="Solo">Just me</option><option value="Small group (2–4)">Small group (2–4)</option><option value="Large group (5+)">Large group (5+)</option></select></label>
+    <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#4D6370;min-width:0">Sort<select value="{{sortSel}}" onChange="{{pickSort}}" style="{{sel.sortSel}}"><option value="Soonest">Soonest</option><option value="Closest">Closest</option><option value="Most urgent">Most urgent</option></select></label>
+    <button type="button" onClick="{{clearFilters}}" style="margin-left:auto;min-height:44px;padding:0 12px;background:none;border:0;cursor:pointer;font-size:14px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">Clear all filters</button>
+  </div>
+  <p style="margin:0;font-size:14px;color:#4D6370">{{filterNote}}</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:16px">
+    <sc-for list="{{cards}}" as="n" hint-placeholder-count="6">
+        <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="{{n.badgeStyle}}"><span style="{{n.shapeStyle}}"></span>{{n.typeLabel}}</span>
+            <span style="font-size:13px;color:#4D6370">{{n.cadence}}</span>
+            <button type="button" onClick="{{n.toggleSave}}" aria-pressed="{{n.savedPressed}}" aria-label="{{n.saveLabel}}" style="margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;border:1.5px solid #C9D6DC;background:#FFFFFF;color:#9B1C12;cursor:pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="{{n.heartFill}}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <h3 style="margin:0;font-size:19px;line-height:1.3;font-weight:700">{{n.ask}}</h3>
+            <button type="button" onClick="{{n.openOrg}}" style="align-self:flex-start;min-height:36px;padding:0;background:none;border:0;cursor:pointer;font-size:15px;text-align:left;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">{{n.org}}</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:#18303C">
+            <span style="display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4D6370" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12s-8-7-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>{{n.place}}</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4D6370" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>{{n.drive}}</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <sc-for list="{{n.badges}}" as="b" hint-placeholder-count="2"><span style="padding:3px 9px;border-radius:8px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:13px;font-weight:600;color:#18303C">{{b}}</span></sc-for>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#18303C;font-weight:600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></svg>{{n.confirmed}}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:4px">
+            <button type="button" onClick="{{n.openAct}}" style="{{n.actStyle}}">{{n.actLabel}}</button>
+            <button type="button" onClick="{{n.openOrg}}" style="min-height:44px;padding:0 14px;background:#FFFFFF;color:#18303C;border:1.5px solid #9FB2BC;border-radius:4px;font-size:15px;font-weight:600;cursor:pointer">About the organization</button>
+          </div>
+        </article>
+    </sc-for>
+  </div>
+  <sc-if value="{{noResults}}" hint-placeholder-val="{{false}}">
+    <div style="padding:28px;border-radius:4px;background:#FFFFFF;border:1px dashed #C9D6DC;font-size:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">Nothing matches every filter. <button type="button" onClick="{{clearFilters}}" style="min-height:44px;padding:0 6px;background:none;border:0;cursor:pointer;font-size:16px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">Clear all filters</button></div>
+  </sc-if>
+</main>
+</sc-if>
+
+<!-- ============ 5 · ORGANIZATION PAGE ============ -->
+<sc-if value="{{isOrgTF}}" hint-placeholder-val="{{false}}">
+<main style="max-width:1240px;margin:0 auto;padding:28px 24px 72px;display:flex;flex-direction:column;gap:24px">
+  <nav aria-label="Breadcrumb" style="display:flex;gap:8px;align-items:center;font-size:15px;flex-wrap:wrap">
+    <button type="button" onClick="{{goResults}}" style="min-height:44px;padding:0;background:none;border:0;color:#18303C;font-size:15px;font-weight:600;cursor:pointer">← Ways to help</button>
+    <span style="color:#4D6370">/</span>
+    <span style="color:#4D6370">Thriving Families</span>
+  </nav>
+
+  <section style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:28px;display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between">
+    <div style="flex:1 1 520px;min-width:0;display:flex;flex-direction:column;gap:12px">
+      <h1 style="margin:0;font-family:'Archivo',sans-serif;font-size:40px;line-height:1.08;letter-spacing:-0.015em;font-weight:300">Thriving Families</h1>
+      <p style="margin:0;font-size:18px;line-height:1.5;color:#2B414D;max-width:640px">Free programs that help pregnant and parenting families in Denver thrive, from pregnancy through a baby's early years. Home of MotherWise, offered in English and Spanish.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span style="padding:6px 12px;border-radius:999px;background:#F7EDD0;color:#6B4C00;font-size:14px;font-weight:700">Draft profile from public sources · Nov 2026</span>
+        <span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">Denver · Denver County · 25 min from Golden</span>
+        <span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">191 Yuma St., Denver 80223</span>
+        <span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">Human services · nonprofit since 2019</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:4px">
+        <span style="font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#4D6370;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Programs</span>
+        <span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">MotherWise</span><span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">Teen parent programs</span><span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">WiseWellness counseling</span><span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">La Luz</span><span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">Resilient Roots</span>
+      </div>
+    </div>
+    <div style="flex:1 1 300px;max-width:380px;min-width:0;background:#F1F5F6;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#4D6370;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">What your help does</span>
+      <p style="margin:0;font-size:16px;line-height:1.5">Every program is free for families, so gifts and volunteer hours go straight into workshops, one-on-one coaching and counseling. In a randomized trial, MotherWise reduced preterm birth by 55%.</p>
+      <span style="font-size:13px;color:#4D6370">Summarized from their Colorado Gives page · to be rewritten by the organization</span>
+      <span style="font-size:14px;color:#18303C;font-weight:600">720-504-4624 · info@thrivingfamiliescolorado.org</span>
+      <a href="https://thrivingfamiliescolorado.org/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;margin-top:6px;border-radius:999px;background:#18303C;color:#F7FAFB;font-size:15px;font-weight:600;text-decoration:none;align-self:flex-start">Visit their website
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg>
+      </a>
+      <span style="font-size:13px;color:#4D6370">thrivingfamiliescolorado.org</span>
+    </div>
+  </section>
+
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:#E6EEF1;border-radius:14px;padding:14px 18px">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B6755" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+    <span style="font-size:15px;font-weight:600;color:#18303C">Match is live: new monthly gifts are matched on Colorado Gives, up to $100 each, while the $250K pool lasts</span>
+    <button type="button" onClick="{{goShare}}" style="margin-left:auto;min-height:44px;padding:0 14px;background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;font-size:14px;font-weight:600;color:#18303C;cursor:pointer">Remind me</button>
+  </div>
+
+  <section aria-labelledby="h-ratings" style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px">
+      <h2 id="h-ratings" style="margin:0;font-family:'Archivo',sans-serif;font-size:26px;letter-spacing:-0.02em;font-weight:300">Independent ratings</h2>
+      <span style="font-size:13px;color:#4D6370">Checked Nov 2026</span>
+      <button type="button" onClick="{{goRatings}}" style="background:none;border:0;padding:0;min-height:44px;font-size:15px;cursor:pointer;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">What these ratings mean</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+      <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;min-width:0">
+        <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">Charity Navigator</span>
+        <div role="img" aria-label="4 out of 4 stars" style="display:flex;gap:4px;align-items:center"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5 6 20.9l1.3-6.7-5-4.7 6.8-.8z" fill="#E89A5B" stroke="#18303C" stroke-width="1.2" stroke-linejoin="round"></path></svg><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5 6 20.9l1.3-6.7-5-4.7 6.8-.8z" fill="#E89A5B" stroke="#18303C" stroke-width="1.2" stroke-linejoin="round"></path></svg><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5 6 20.9l1.3-6.7-5-4.7 6.8-.8z" fill="#E89A5B" stroke="#18303C" stroke-width="1.2" stroke-linejoin="round"></path></svg><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.5 6 20.9l1.3-6.7-5-4.7 6.8-.8z" fill="#E89A5B" stroke="#18303C" stroke-width="1.2" stroke-linejoin="round"></path></svg></div><span style="font-family:'Archivo',sans-serif;font-size:28px;font-weight:300;letter-spacing:-0.02em;line-height:1.1">4 / 4 stars</span>
+        <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;color:#4D6370">95% score</span>
+        <div style="display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:auto"><a href="https://www.charitynavigator.org/ein/841993572" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;font-weight:600;color:#18303C;text-decoration:underline;text-underline-offset:3px">View rating</a><a href="https://www.charitynavigator.org/about-us/our-methodology/ratings/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;font-weight:600;color:#18303C;text-decoration:underline;text-underline-offset:3px">How it works</a></div>
+      </article>
+      <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;min-width:0">
+        <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">CharityWatch</span>
+        <span style="font-family:'Archivo',sans-serif;font-size:28px;font-weight:300;letter-spacing:-0.02em;line-height:1.1">Not rated</span>
+        <span style="font-size:14px;color:#4D6370">No report found</span>
+        <div style="display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:auto"><a href="https://www.charitywatch.org/charities" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;font-weight:600;color:#18303C;text-decoration:underline;text-underline-offset:3px">Search</a><a href="https://www.charitywatch.org/charitywatch-criteria-methodology" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;font-weight:600;color:#18303C;text-decoration:underline;text-underline-offset:3px">How it works</a></div>
+      </article>
+    </div>
+  </section>
+
+  <h2 style="margin:8px 0 0;font-family:'Archivo',sans-serif;font-size:26px;font-weight:500">Every way to help Thriving Families</h2>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:12px"><span style="display:inline-block;flex:none;width:16px;height:16px;background:#E89A5B;border-radius:999px"></span><h3 style="margin:0;font-family:'Archivo',sans-serif;font-size:22px;font-weight:500">Time</h3><span style="font-size:14px;color:#4D6370">2 ways · 1 open, 1 past</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(520px, 1fr));gap:16px">
+    <section aria-labelledby="o-time" style="background:#FFFFFF;border:1px solid #C9D6DC;border-top:3px solid #E89A5B;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 id="o-time" style="margin:0;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:#8A430E;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Time</h3><span style="font-size:13px;font-weight:700;color:#18303C">Registration open · Sat Dec 12</span></div>
+      <p style="margin:0;font-size:20px;font-weight:700">Volunteer at the Winter Wonderland Holiday Reunion</p>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">Their annual holiday gathering for families, staff and volunteers.</p>
+      <dl style="margin:0;display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:15px">
+        <dt style="color:#4D6370">When</dt><dd style="margin:0">Saturday, Dec 12 · pick Session A (11–1) or Session B (2–4)</dd>
+        <dt style="color:#4D6370">Arrive</dt><dd style="margin:0">10:30 am for Session A · 1:30 pm for Session B</dd>
+        <dt style="color:#4D6370">Where</dt><dd style="margin:0">Thriving Families, 191 Yuma St., Denver</dd>
+        <dt style="color:#4D6370">Planning help</dt><dd style="margin:0">Want to help plan it? Contact Alexis Kihle</dd>
+      </dl>
+      <p style="margin:0;font-size:15px;line-height:1.5;padding:12px;border-radius:4px;background:#F1F5F6"><strong>Next step:</strong> register on their form. To add: roles and age rules, which their page doesn't list.</p>
+      <button type="button" onClick="{{actTime}}" style="align-self:flex-start;min-height:48px;padding:0 20px;background:#E89A5B;color:#18303C;border:0;border-radius:999px;font-size:16px;font-weight:700;cursor:pointer">Register to volunteer</button>
+    </section>
+
+    <section style="border:1px solid #C9D6DC;border-top:3px solid #E89A5B;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px;opacity:0.78;background:#F1F5F6">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:#8A430E;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Time</h3><span style="padding:4px 10px;border-radius:999px;background:#FBE3E0;color:#9B1C12;font-size:13px;font-weight:700">Expired</span></div>
+      <p style="margin:0;font-size:20px;font-weight:700">Tee Up for Families</p>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">The 2026 golf tournament was held September 22 at The Ridge at Castle Pines, and registration is closed. It stays visible as a past event, with no sign-up button, and will not appear in search results. Questions about the event went to jessicapurcel@thrivingfamiliescolorado.org.</p>
+      <p style="margin:0;font-size:14px;line-height:1.5;padding:10px 12px;border-radius:4px;background:#F1F5F6"><strong>Idea to discuss:</strong> an annual-event reminder, so neighbors hear about next year's tournament when registration opens.</p>
+      <a href="http://thrivingfamiliescolorado.org/tee-up-for-families" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;align-self:flex-start;min-height:48px;padding:0 20px;border-radius:999px;font-size:16px;font-weight:700;text-decoration:none;background:#FFFFFF;color:#4D6370;border:1.5px solid #9FB2BC">View past event page<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></a>
+    </section>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:12px"><span style="display:inline-block;flex:none;width:16px;height:16px;background:#3B6755;border-radius:3px"></span><h3 style="margin:0;font-family:'Archivo',sans-serif;font-size:22px;font-weight:500">Goods</h3><span style="font-size:14px;color:#4D6370">2 ways</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(520px, 1fr));gap:16px">
+    <section aria-labelledby="o-goods" style="background:#FFFFFF;border:1px solid #C9D6DC;border-top:3px solid #3B6755;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 id="o-goods" style="margin:0;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:#3B6755;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Goods</h3><span style="font-size:13px;color:#4D6370">Standing need · from their website</span></div>
+      <p style="margin:0;font-size:20px;font-weight:700">Baby gear, clothing, feeding and diapering supplies</p>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">Their team sorts every donation and gives it directly to families in their programs.</p>
+      <dl style="margin:0;display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:15px">
+        <dt style="color:#4D6370">Gear</dt><dd style="margin:0">Car seats (accident-free, not expired), compact pack ’n plays or bassinets, strollers, bouncers, carriers, swaddles</dd>
+        <dt style="color:#4D6370">Clothing</dt><dd style="margin:0">Baby and toddler up to 5T, kids shoes up to size 2, maternity</dd>
+        <dt style="color:#4D6370">Feeding</dt><dd style="margin:0">Bottles, unopened formula, complete breast pumps, new nursing pads, milk storage bags</dd>
+        <dt style="color:#4D6370">Diapering</dt><dd style="margin:0">Diapers (all sizes), wipes, diaper bags</dd>
+        <dt style="color:#4D6370">Condition</dt><dd style="margin:0">Clean, smoke-free, working, all parts included. No recalled items</dd>
+        <dt style="color:#4D6370">Can’t take</dt><dd style="margin:0">Toys, full-size cribs, toddler beds, adult clothing, housewares, used stuffed animals, clothing over 5T</dd>
+        <dt style="color:#4D6370">Drop off</dt><dd style="margin:0">191 Yuma St., main entrance · Mon–Fri 9–4 or by appointment</dd>
+        <dt style="color:#4D6370">Receipts</dt><dd style="margin:0">Tax receipts at drop-off (501(c)(3))</dd>
+      </dl>
+      <p style="margin:0;font-size:14px;line-height:1.5;padding:10px 12px;border-radius:4px;background:#F1F5F6"><strong>Something they can’t take?</strong> They suggest WeeCycle, The Gathering Place, The Action Center or Habitat for Humanity ReStore. Planning a community drive? Email info@thrivingfamiliescolorado.org or call 720-504-4624.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <button type="button" onClick="{{actGoods}}" style="min-height:48px;padding:0 20px;background:#3B6755;color:#FFFFFF;border:0;border-radius:999px;font-size:16px;font-weight:700;cursor:pointer">See drop-off details</button>
+        <a href="https://thrivingfamiliescolorado.org/baby-gear-donations" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 20px;border-radius:999px;font-size:16px;font-weight:700;text-decoration:none;background:#FFFFFF;color:#18303C;border:1.5px solid #9FB2BC">Their baby-gear page</a>
+      </div>
+    </section>
+
+    <section style="background:#FFFFFF;border:1px solid #C9D6DC;border-top:3px solid #3B6755;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:#3B6755;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Goods</h3><span style="padding:4px 10px;border-radius:999px;background:#DDEBE4;color:#3B6755;font-size:13px;font-weight:700">Holiday drive</span></div>
+      <p style="margin:0;font-size:20px;font-weight:700">Toy Shoppe: new toys and books for ages 0–16</p>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">Families pick out gifts at the Toy Shoppe, stocked by neighbors. Host a collection box at your office, or buy from their Amazon wish list. Gifts must be new.</p>
+      <a href="https://www.amazon.com/registries/gl/guest-view/VJCWZPM01XUJ" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;align-self:flex-start;min-height:48px;padding:0 20px;border-radius:999px;font-size:16px;font-weight:700;text-decoration:none;background:#3B6755;color:#FFFFFF;border:0">Open the Amazon wish list<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></a>
+    </section>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:12px"><span style="display:inline-block;flex:none;width:16px;height:16px;background:#D9B76E;border-radius:2px;transform:rotate(45deg) scale(0.74)"></span><h3 style="margin:0;font-family:'Archivo',sans-serif;font-size:22px;font-weight:500">Money</h3><span style="font-size:14px;color:#4D6370">4 ways</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(520px, 1fr));gap:16px">
+    <section aria-labelledby="o-money" style="background:#FFFFFF;border:1px solid #C9D6DC;border-top:3px solid #D9B76E;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 id="o-money" style="margin:0;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:#6B4C00;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Money</h3><span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#18303C"><span style="width:8px;height:8px;border-radius:999px;background:#18303C"></span>Campaign active · match live</span></div>
+      <p style="margin:0;font-size:20px;font-weight:700">Start a monthly gift: new recurring gifts are matched</p>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="height:10px;border-radius:999px;background:#F7EDD0;overflow:hidden"><div style="width:2%;min-width:6px;height:100%;background:#D9B76E"></div></div>
+        <span style="font-size:14px;color:#4D6370">$150 of $10,000 raised from 2 donors · at last check on Colorado Gives</span>
+      </div>
+      <dl style="margin:0;display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:15px">
+        <dt style="color:#4D6370">Match</dt><dd style="margin:0">Up to $100 per new monthly gift, from the Colorado Gives Foundation</dd>
+        <dt style="color:#4D6370">Goes to</dt><dd style="margin:0">Free workshops, case management and counseling</dd>
+      </dl>
+      <button type="button" onClick="{{actMoney}}" style="align-self:flex-start;min-height:48px;padding:0 20px;background:#D9B76E;color:#18303C;border:0;border-radius:999px;font-size:16px;font-weight:700;cursor:pointer">Give on ColoradoGives</button>
+    </section>
+
+    <section style="border:1px solid #C9D6DC;border-top:3px solid #D9B76E;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px;background:#FFFFFF">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:#6B4C00;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Money</h3><span style="padding:4px 10px;border-radius:999px;background:#E6EEF1;color:#18303C;font-size:13px;font-weight:700">Direct giving</span></div>
+      <p style="margin:0;font-size:20px;font-weight:700">Give directly on their website</p>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">Prefer to skip the platform? Give straight to Thriving Families. Their form takes one-time or monthly gifts, by credit card or bank transfer. The $100 match applies to monthly gifts made on Colorado Gives.</p><p style="margin:0;font-size:14px;line-height:1.5;padding:10px 12px;border-radius:4px;background:#F7EDD0;color:#6B4C00"><strong>On their form:</strong> one-time gifts of $100, $250, $500, $1,000 or another amount; a monthly tab; individual or company; an option to cover fees, dedicate the gift or give without public recognition; and a request-an-invoice option to pay later. Receipts go to your email.</p>
+      <a href="https://thrivingfamiliescolorado.org/give-now" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;align-self:flex-start;min-height:48px;padding:0 20px;border-radius:999px;font-size:16px;font-weight:700;text-decoration:none;background:#FFFFFF;color:#18303C;border:1.5px solid #9FB2BC">Give on their site<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></a>
+    </section>
+
+    <section style="border:1px solid #C9D6DC;border-top:3px solid #D9B76E;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px;background:#FFFFFF">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:#6B4C00;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Money</h3><span style="padding:4px 10px;border-radius:999px;background:#E6EEF1;color:#18303C;font-size:13px;font-weight:700">Capital campaign</span></div>
+      <p style="margin:0;font-size:20px;font-weight:700">Help build "the nest": their new home at 191 Yuma St.</p>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">They bought the building in May 2024 with a $1 million State of Colorado grant. The 20,000 sq ft building in Denver's Valverde neighborhood lets them run every program in person again, with room for 60+ cars. They run more than 200 MotherWise workshops a year, and the plan adds: two 1,200 sq ft workshop rooms (25+ mothers and babies each), onsite childcare with play structures and a nap room, a food pantry, a baby boutique with free car seats, portable cribs, diapers and clothing, a kitchen for the 100 to 200 meals they serve weekly, and confidential second-floor mental health rooms.</p><p style="margin:0;font-size:14px;line-height:1.5;padding:10px 12px;border-radius:4px;background:#F7EDD0;color:#6B4C00"><strong>To add:</strong> a dollar goal, amount raised and giving levels. Their campaign page doesn't list them, so that's a question for Thriving Families.</p>
+      <a href="https://thrivingfamiliescolorado.org/give-now" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;align-self:flex-start;min-height:48px;padding:0 20px;border-radius:999px;font-size:16px;font-weight:700;text-decoration:none;background:#D9B76E;color:#18303C;border:0">Become a nest builder<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></a>
+    </section>
+
+    <section style="background:#FFFFFF;border:1px solid #C9D6DC;border-top:3px solid #D9B76E;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:#6B4C00;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Money</h3><span style="padding:4px 10px;border-radius:999px;background:#E6EEF1;color:#18303C;font-size:13px;font-weight:700">Event sponsorship</span></div>
+      <p style="margin:0;font-size:20px;font-weight:700">Sponsor the Winter Wonderland</p>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">Two ways in: corporate or philanthropic supporter (the Premier Supporter level), or family sponsor. Gifts bring extra joy to families facing growing needs this year.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px"><a href="https://secure.qgiv.com/for/202winwonholreuspo/event/2026winterwonderlandholidayreunionsponsorship/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;align-self:flex-start;min-height:48px;padding:0 20px;border-radius:999px;font-size:16px;font-weight:700;text-decoration:none;background:#D9B76E;color:#18303C;border:0">Corporate supporter<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></a><a href="https://secure.qgiv.com/for/202winwonholreuspo/event/2wwhrsc/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;align-self:flex-start;min-height:48px;padding:0 20px;border-radius:999px;font-size:16px;font-weight:700;text-decoration:none;background:#FFFFFF;color:#18303C;border:1.5px solid #9FB2BC">Family sponsor<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></a></div>
+    </section>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:12px"><span style="display:inline-block;flex:none;width:16px;height:16px;background:#7FAECB;clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)"></span><h3 style="margin:0;font-family:'Archivo',sans-serif;font-size:22px;font-weight:500">Skills</h3><span style="font-size:14px;color:#4D6370">1 way</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(520px, 1fr));gap:16px">
+    <section aria-labelledby="o-skills" style="background:#FFFFFF;border:1px solid #C9D6DC;border-top:3px solid #7FAECB;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 id="o-skills" style="margin:0;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;color:#2F6A90;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Skills</h3><span style="font-size:13px;color:#4D6370">Proposed · remote OK</span></div>
+      <p style="margin:0;font-size:20px;font-weight:700">Translate and review parent handouts (English and Spanish)</p>
+      
+      <dl style="margin:0;display:grid;grid-template-columns:120px 1fr;gap:6px 12px;font-size:15px">
+        <dt style="color:#4D6370">Skill</dt><dd style="margin:0">Spanish–English translation · plain-language editing</dd>
+        <dt style="color:#4D6370">Scope</dt><dd style="margin:0">About 6–10 hours (to scope with them)</dd>
+        <dt style="color:#4D6370">You deliver</dt><dd style="margin:0">Print-ready bilingual handouts</dd>
+        <dt style="color:#4D6370">Contact</dt><dd style="margin:0">Thriving Families team</dd>
+      </dl>
+      <button type="button" onClick="{{actSkills}}" style="align-self:flex-start;min-height:48px;padding:0 20px;background:#7FAECB;color:#18303C;border:0;border-radius:999px;font-size:16px;font-weight:700;cursor:pointer">Email the team</button>
+    </section>
+  </div>
+  <p style="margin:0;font-size:14px;line-height:1.5;color:#4D6370;max-width:820px">Built from thrivingfamiliescolorado.org, motherwisecolorado.org and their Colorado Gives page. Their Spark the Change listing and several website pages (baby-gear guidance, events, give page) could not be read, so roles marked "proposed" are conversation starters, not posted needs.</p>
+</main>
+</sc-if>
+
+<!-- ============ ORGANIZATION PAGE (every other org) ============ -->
+<sc-if value="{{isOrgGen}}" hint-placeholder-val="{{false}}">
+<main style="max-width:1240px;margin:0 auto;padding:28px 24px 72px;display:flex;flex-direction:column;gap:24px">
+  <nav aria-label="Breadcrumb" style="display:flex;gap:8px;align-items:center;font-size:15px;flex-wrap:wrap">
+    <button type="button" onClick="{{goResults}}" style="min-height:44px;padding:0;background:none;border:0;color:#18303C;font-size:15px;font-weight:600;cursor:pointer">← Ways to help</button>
+    <span style="color:#4D6370">/</span>
+    <span style="color:#4D6370">{{og.name}}</span>
+  </nav>
+
+  <section style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:28px;display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between">
+    <div style="flex:1 1 520px;min-width:0;display:flex;flex-direction:column;gap:12px">
+      <h1 style="margin:0;font-family:'Archivo',sans-serif;font-size:40px;line-height:1.08;letter-spacing:-0.015em;font-weight:300">{{og.name}}</h1>
+      <p style="margin:0;font-size:18px;line-height:1.5;color:#2B414D;max-width:640px">{{og.desc}}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span style="padding:6px 12px;border-radius:999px;background:#F7EDD0;color:#6B4C00;font-size:14px;font-weight:700">{{og.confirmed}}</span>
+        <sc-for list="{{og.chips}}" as="c" hint-placeholder-count="3"><span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">{{c}}</span></sc-for>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:4px">
+        <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#4D6370;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Causes</span>
+        <sc-for list="{{og.causes}}" as="c" hint-placeholder-count="2"><span style="padding:6px 12px;border-radius:999px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:14px;font-weight:600">{{c}}</span></sc-for>
+      </div>
+    </div>
+    <div style="flex:1 1 300px;max-width:380px;min-width:0;background:#F1F5F6;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#4D6370;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">What your help does</span>
+      <p style="margin:0;font-size:16px;line-height:1.5">{{og.impact}}</p>
+      <span style="font-size:13px;color:#4D6370">{{og.source}}</span>
+      <sc-if value="{{og.hasPhone}}" hint-placeholder-val="{{false}}"><span style="font-size:14px;color:#18303C;font-weight:600">{{og.phone}}</span></sc-if>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+        <a href="{{og.site}}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 20px;border-radius:999px;background:#18303C;color:#F7FAFB;font-size:15px;font-weight:600;text-decoration:none">Visit their website <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></a>
+        <a href="{{og.donate}}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border-radius:999px;background:#FFFFFF;color:#18303C;border:1.5px solid #9FB2BC;font-size:15px;font-weight:600;text-decoration:none">Donate <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></a>
+      </div>
+      <span style="font-size:13px;color:#4D6370">{{og.host}}</span>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-og-ratings" style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px">
+      <h2 id="h-og-ratings" style="margin:0;font-family:'Archivo',sans-serif;font-size:26px;letter-spacing:-0.02em;font-weight:300">Independent ratings</h2>
+      <span style="font-size:13px;color:#4D6370">Checked Nov 2026</span>
+      <button type="button" onClick="{{goRatings}}" style="background:none;border:0;padding:0;min-height:44px;font-size:15px;cursor:pointer;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">What these ratings mean</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+      <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;min-width:0">
+        <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">Charity Navigator</span>
+        <span style="font-family:'Archivo',sans-serif;font-size:28px;font-weight:300;letter-spacing:-0.02em;line-height:1.1">{{og.cnBig}}</span>
+        <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;color:#4D6370">{{og.cnSub}}</span>
+        <div style="display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:auto"><a href="{{og.cnHref}}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">View rating</a><a href="https://www.charitynavigator.org/about-us/our-methodology/ratings/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">How it works</a></div>
+      </article>
+      <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;min-width:0">
+        <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#4D6370;font-weight:500">CharityWatch</span>
+        <span style="font-family:'Archivo',sans-serif;font-size:28px;font-weight:300;letter-spacing:-0.02em;line-height:1.1">Not rated</span>
+        <span style="font-size:14px;color:#4D6370">No report found</span>
+        <div style="display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:auto"><a href="https://www.charitywatch.org/charities" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">Search</a><a href="https://www.charitywatch.org/charitywatch-criteria-methodology" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">How it works</a></div>
+      </article>
+    </div>
+  </section>
+
+  <h2 style="margin:8px 0 0;font-family:'Archivo',sans-serif;font-size:26px;font-weight:500">Every way to help {{og.name}}</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:16px">
+    <sc-for list="{{og.rows}}" as="w" hint-placeholder-count="3">
+      <section style="{{w.cardStyle}}">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span style="{{w.badgeStyle}}"><span style="{{w.shapeStyle}}"></span>{{w.typeLabel}}</span><span style="font-size:13px;color:#4D6370">{{w.cadence}}</span></div>
+        <p style="margin:0;font-size:20px;font-weight:700;line-height:1.3">{{w.ask}}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{w.badges}}" as="b" hint-placeholder-count="2"><span style="padding:3px 9px;border-radius:8px;background:#EEF3F5;border:1px solid #C9D6DC;font-size:13px;font-weight:600;color:#18303C">{{b}}</span></sc-for></div>
+        <button type="button" onClick="{{w.openAct}}" style="{{w.actStyle}};align-self:flex-start;margin-top:auto">{{w.actLabel}}</button>
+      </section>
+    </sc-for>
+  </div>
+  <p style="margin:0;font-size:14px;line-height:1.5;color:#4D6370;max-width:820px">Built from {{og.host}}, their latest Form 990 and Charity Navigator, Nov 2026. Organizations can ask us to correct or update anything here.</p>
+</main>
+</sc-if>
+
+<!-- ============ 4 · ACT: hand-off ============ -->
+<sc-if value="{{isAct}}" hint-placeholder-val="{{false}}">
+<main style="max-width:1240px;margin:0 auto;padding:32px 24px 72px;display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+  <section style="flex:999 1 560px;min-width:0;background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:32px;display:flex;flex-direction:column;gap:20px">
+    <button type="button" onClick="{{act.backToOrg}}" style="align-self:flex-start;min-height:44px;padding:0;background:none;border:0;color:#18303C;font-size:15px;font-weight:600;cursor:pointer">← About {{act.orgName}}</button>
+    <span style="{{act.badgeStyle}}"><span style="{{act.shapeStyle}}"></span>{{act.typeLabel}} · {{act.orgName}}</span>
+    <h1 style="margin:0;font-family:'Archivo',sans-serif;font-size:36px;line-height:1.1;letter-spacing:-0.01em;font-weight:300">{{act.title}}</h1>
+    <p style="margin:0;font-size:17px;color:#4D6370">{{act.where}}</p>
+    <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{act.steps}}" as="s" hint-placeholder-count="3">
+        <li style="display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:4px;background:#F1F5F6">
+          <span style="flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;background:#18303C;color:#FFFFFF;font-size:14px;font-weight:700">{{s.n}}</span>
+          <span style="font-size:16px;line-height:1.5">{{s.text}}</span>
+        </li>
+      </sc-for>
+    </ol>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <a href="{{act.href}}" target="_blank" rel="noopener" style="{{act.btnStyle}}">{{act.btn}} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg></a>
+      <span style="font-size:14px;color:#4D6370">{{act.opens}}</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:8px;border-top:1px solid #C9D6DC;font-size:14px;color:#4D6370">
+      <span style="display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></svg>{{act.contact}}</span>
+      <button type="button" onClick="{{goSuggest}}" style="margin-left:auto;min-height:44px;padding:0 12px;background:none;border:0;color:#9B1C12;font-size:14px;font-weight:600;cursor:pointer">Link broken or need already filled? Tell us</button>
+    </div>
+  </section>
+
+  <aside style="flex:1 1 300px;max-width:400px;min-width:0;display:flex;flex-direction:column;gap:16px">
+    <div style="background:#18303C;color:#FFFFFF;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:14px">
+      <sc-if value="{{notDone}}" hint-placeholder-val="{{true}}">
+        <h2 style="margin:0;font-family:'Archivo',sans-serif;font-size:24px;font-weight:500">Did you do it?</h2>
+        <p style="margin:0;font-size:15px;line-height:1.5;color:#C9D6DC">Tap once you've signed up, dropped off or given. It goes in your private giving log and tells {{act.orgName}} their page is working.</p>
+        <button type="button" onClick="{{markDone}}" style="min-height:52px;padding:0 20px;background:#FFFFFF;color:#18303C;border:0;border-radius:4px;font-size:17px;font-weight:700;cursor:pointer">I did this</button>
+        <button type="button" onClick="{{act.save}}" style="min-height:48px;padding:0 20px;background:transparent;color:#FFFFFF;border:1.5px solid #4D6370;border-radius:4px;font-size:15px;font-weight:600;cursor:pointer">{{act.saveLabel}}</button>
+      </sc-if>
+      <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+        <h2 style="margin:0;font-family:'Archivo',sans-serif;font-size:24px;font-weight:500">Logged. Thank you.</h2>
+        <p style="margin:0;font-size:15px;line-height:1.5;color:#C9D6DC">Added to your 2026 giving log. {{act.orgName}} will see one more "I did this" in their monthly note.</p>
+        <button type="button" onClick="{{goShare}}" style="min-height:52px;padding:0 20px;background:#FFFFFF;color:#18303C;border:0;border-radius:4px;font-size:17px;font-weight:700;cursor:pointer">Invite family to join</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{act.hasOthers}}" hint-placeholder-val="{{true}}">
+    <div style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:18px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#4D6370;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Other ways to help {{act.orgName}}</span>
+      <sc-for list="{{act.others}}" as="o" hint-placeholder-count="3"><button type="button" onClick="{{o.go}}" style="{{o.style}}">{{o.label}}</button></sc-for>
+    </div>
+    </sc-if>
+  </aside>
+</main>
+</sc-if>
+
+<!-- ============ 7 · SAVE & SHARE ============ -->
+<sc-if value="{{isShare}}" hint-placeholder-val="{{false}}">
+<main style="max-width:1240px;margin:0 auto;padding:32px 24px 72px;display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+  <section style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px">
+    <div>
+      <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#18303C;letter-spacing:0.04em;text-transform:uppercase;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">5 · Save and share</p>
+      <h1 style="margin:0;font-family:'Archivo',sans-serif;font-size:36px;letter-spacing:-0.01em;font-weight:300">Our holiday plan</h1>
+      <p style="margin:8px 0 0;font-size:16px;color:#4D6370">{{savedCount}} saved needs. Heart more from any card.</p>
+    </div>
+    <sc-for list="{{savedList}}" as="n" hint-placeholder-count="3">
+      <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:14px;padding:16px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+        <span style="{{n.badgeStyle}}"><span style="{{n.shapeStyle}}"></span>{{n.typeLabel}}</span>
+        <div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:17px;font-weight:700">{{n.ask}}</span>
+          <span style="font-size:14px;color:#4D6370">{{n.org}} · {{n.cadence}}</span>
+        </div>
+        <span style="font-size:14px;color:#4D6370">{{n.vote}}</span>
+        <button type="button" onClick="{{n.toggleSave}}" style="min-height:44px;padding:0 12px;background:none;border:1px solid #C9D6DC;border-radius:4px;font-size:14px;font-weight:600;color:#18303C;cursor:pointer">Remove</button>
+      </article>
+    </sc-for>
+    <sc-if value="{{noSaved}}" hint-placeholder-val="{{false}}">
+      <div style="padding:24px;border-radius:14px;background:#FFFFFF;border:1px dashed #C9D6DC;font-size:16px">Your shortlist is empty. <button type="button" onClick="{{goResults}}" style="min-height:44px;padding:0 6px;background:none;border:0;color:#18303C;font-size:16px;font-weight:700;cursor:pointer">Browse needs</button></div>
+    </sc-if>
+  </section>
+
+  <aside style="flex:1 1 320px;max-width:420px;min-width:0;display:flex;flex-direction:column;gap:16px">
+    <div style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <h2 style="margin:0;font-family:'Archivo',sans-serif;font-size:22px;font-weight:500">Send it to your circle</h2>
+      <label for="link" style="font-size:13px;font-weight:600;color:#4D6370">Share link</label>
+      <div style="display:flex;gap:8px">
+        <input id="link" readonly value="everywaytohelp.org/s/holiday-7Q2" style="flex:1;min-width:0;min-height:44px;border:1.5px solid #9FB2BC;border-radius:4px;padding:0 12px;font-size:15px;color:#18303C;background:#F1F5F6">
+        <button type="button" onClick="{{copy}}" style="min-height:44px;padding:0 16px;background:#18303C;color:#FFFFFF;border:0;border-radius:4px;font-size:15px;font-weight:700;cursor:pointer">{{copyLabel}}</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button type="button" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;background:#E6EEF1;border:0;border-radius:4px;font-size:15px;font-weight:600;color:#18303C;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Group text</button>
+        <button type="button" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;background:#E6EEF1;border:0;border-radius:4px;font-size:15px;font-weight:600;color:#18303C;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>Email</button>
+      </div>
+      <p style="margin:0;font-size:14px;color:#4D6370">Anyone with the link can see the list and vote on it. Nobody has to sign up.</p>
+    </div>
+    <div style="background:#E9EFF1;border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#4D6370;font-family:'IBM Plex Mono',ui-monospace,monospace;font-weight:500">Preview · group text</span>
+      <div style="align-self:flex-end;max-width:300px;background:#18303C;color:#FFFFFF;border-radius:18px 18px 4px 18px;padding:12px 14px;font-size:15px;line-height:1.45">Holiday giving ideas for us this year — 3 picks, all near Golden. Vote on the ones you're in for: everywaytohelp.org/s/holiday-7Q2</div>
+      <div style="align-self:flex-start;max-width:300px;background:#FFFFFF;border-radius:18px 18px 18px 4px;padding:12px 14px;font-size:15px;line-height:1.45">In for the gift wrapping night. Can I bring a friend?</div>
+      <div style="align-self:flex-start;max-width:300px;background:#FFFFFF;border-radius:18px 18px 18px 4px;padding:10px 14px;font-size:14px;color:#4D6370">Needs list shows: groups up to 20 · no experience needed</div>
+    </div>
+  </aside>
+</main>
+</sc-if>
+
+<!-- ============ RATINGS ============ -->
+<sc-if value="{{isRatings}}" hint-placeholder-val="{{false}}">
+<main style="max-width:1240px;margin:0 auto;padding:32px 24px 72px;display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:760px">
+    <p style="margin:0;font-size:14px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;font-family:'IBM Plex Mono',ui-monospace,monospace">About the ratings</p>
+    <h1 style="margin:0;font-family:'Archivo',sans-serif;font-size:44px;letter-spacing:-0.02em;font-weight:300;line-height:1.05">How to read the ratings</h1>
+    <p style="margin:0;font-size:18px;line-height:1.5;color:#2B414D">Lookout shows what three independent U.S. charity evaluators say about each organization. Ratings are context, not a cutoff: most local nonprofits are never reviewed by CharityWatch, so “Not rated” isn’t a red flag.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;max-width:900px">
+      <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0">
+        <h3 style="margin:0;font-family:'Archivo',sans-serif;font-size:22px;font-weight:500">Charity Navigator</h3>
+        <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:#4D6370">0–100% score, shown as 0–4 stars</span>
+        <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">Scores nonprofits that file a public IRS Form 990, using their filings and websites. The score looks at finances, accountability and transparency, among other measures.</p>
+        <div><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #DCE6EA;font-size:14px"><span style="font-weight:600">4 stars</span><span style="color:#4D6370;text-align:right">90% and up</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #DCE6EA;font-size:14px"><span style="font-weight:600">3 stars</span><span style="color:#4D6370;text-align:right">75–89%</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #DCE6EA;font-size:14px"><span style="font-weight:600">2 stars</span><span style="color:#4D6370;text-align:right">60–74%</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #DCE6EA;font-size:14px"><span style="font-weight:600">1 star</span><span style="color:#4D6370;text-align:right">50–59%</span></div></div>
+        <p style="margin:0;font-size:14px;line-height:1.5;color:#4D6370">Rates most organizations on Lookout. A group with no public Form 990 (for example, some faith-based groups) can’t be scored.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0 18px;margin-top:auto"><a href="https://www.charitynavigator.org/about-us/our-methodology/ratings/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">How the score works</a><a href="https://www.charitynavigator.org/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">Search Charity Navigator</a></div>
+      </article><article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0">
+        <h3 style="margin:0;font-family:'Archivo',sans-serif;font-size:22px;font-weight:500">CharityWatch</h3>
+        <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:#4D6370">Letter grades, A+ to F</span>
+        <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">Grades about 1,000 mostly large national charities, mainly on how much of each dollar goes to programs and how much it costs to raise $100.</p>
+        <div><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #DCE6EA;font-size:14px"><span style="font-weight:600">A+ to A−</span><span style="color:#4D6370;text-align:right">Top rated</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #DCE6EA;font-size:14px"><span style="font-weight:600">B and below</span><span style="color:#4D6370;text-align:right">Less efficient</span></div><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #DCE6EA;font-size:14px"><span style="font-weight:600">Not rated</span><span style="color:#4D6370;text-align:right">Not reviewed</span></div></div>
+        <p style="margin:0;font-size:14px;line-height:1.5;color:#4D6370">None of the organizations on Lookout are rated yet. That’s expected for local groups, and it isn’t a warning sign.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0 18px;margin-top:auto"><a href="https://www.charitywatch.org/charitywatch-criteria-methodology" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">How grades work</a><a href="https://www.charitywatch.org/charities" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">Search CharityWatch</a></div>
+      </article>
+  </div>
+
+  <section aria-labelledby="h-why" style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:12px">
+    <h2 id="h-why" style="margin:0;font-family:'Archivo',sans-serif;font-size:26px;font-weight:400">Why an organization is on Lookout</h2>
+    <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:16px;line-height:1.5;color:#2B414D">
+      <li>It’s a registered nonprofit serving the Denver and Boulder area, or a nearby seasonal program.</li>
+      <li>It posts a current way to help on its own website, and every card links straight to that page.</li>
+      <li>We check its ratings and tax filings and show what we find, good or bad.</li>
+    </ul>
+    <p style="margin:0;font-size:15px;color:#4D6370">Know an organization we should add, or something that’s out of date? <button type="button" onClick="{{goSuggest}}" style="background:none;border:0;padding:0;min-height:44px;font-size:15px;cursor:pointer;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">Send a suggestion</button></p>
+  </section>
+
+  <section aria-labelledby="h-table" style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px">
+      <h2 id="h-table" style="margin:0;font-family:'Archivo',sans-serif;font-size:26px;font-weight:400">How organizations on Lookout rate</h2>
+      <span style="font-size:14px;color:#4D6370">Checked Nov 2026 · each score links to its profile</span>
+    </div>
+    <div style="overflow-x:auto;background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px">
+      <dc-table style="width:100%;min-width:640px;border-collapse:collapse;font-size:15px">
+        <dc-thead><dc-tr style="background:#F1F5F6;text-align:left">
+          <dc-th scope="col" style="padding:12px 16px;font-weight:600">Organization</dc-th>
+          <dc-th scope="col" style="padding:12px 16px;font-weight:600">Charity Navigator</dc-th>
+          <dc-th scope="col" style="padding:12px 16px;font-weight:600">CharityWatch</dc-th>
+        </dc-tr></dc-thead>
+        <dc-tbody>
+          <sc-for list="{{ratingRows}}" as="r" hint-placeholder-count="10">
+            <dc-tr style="border-top:1px solid #DCE6EA">
+              <dc-th scope="row" style="padding:12px 16px;text-align:left;font-weight:500">{{r.name}}</dc-th>
+              <dc-td style="padding:12px 16px;white-space:nowrap"><a href="{{r.cnHref}}" target="_blank" rel="noopener" style="color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">{{r.cn}}</a></dc-td>
+              <dc-td style="padding:12px 16px;color:#4D6370">Not rated</dc-td>
+            </dc-tr>
+          </sc-for>
+        </dc-tbody>
+      </dc-table>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-more" style="display:flex;flex-direction:column;gap:12px">
+    <h2 id="h-more" style="margin:0;font-family:'Archivo',sans-serif;font-size:26px;font-weight:400">Find more information yourself</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+      <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:18px 20px;display:flex;flex-direction:column;gap:6px"><h3 style="margin:0;font-size:17px">Read the tax filings</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">ProPublica’s Nonprofit Explorer has each organization’s Form 990: revenue, spending and pay for top staff.</p><a href="https://projects.propublica.org/nonprofits/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">Nonprofit Explorer</a></article>
+      <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:18px 20px;display:flex;flex-direction:column;gap:6px"><h3 style="margin:0;font-size:17px">See a full profile</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">Candid (formerly GuideStar) collects mission, programs, leadership and results that organizations report themselves.</p><a href="https://www.guidestar.org/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#18303C;font-weight:600;text-decoration:underline;text-underline-offset:3px">Search Candid</a></article>
+      <article style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:18px 20px;display:flex;flex-direction:column;gap:6px"><h3 style="margin:0;font-size:17px">Ask the organization</h3><p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">Good nonprofits will share an annual report and tell you how your gift or hours are used. Each card on Lookout links to their own site.</p></article>
+    </div>
+  </section>
+</main>
+</sc-if>
+
+<!-- ============ SUGGESTIONS ============ -->
+<sc-if value="{{isSuggest}}" hint-placeholder-val="{{false}}">
+<main style="max-width:1240px;margin:0 auto;padding:32px 24px 72px;display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start">
+  <div style="flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <p style="margin:0;font-size:14px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;font-family:'IBM Plex Mono',ui-monospace,monospace">Suggestions</p>
+      <h1 style="margin:0;font-family:'Archivo',sans-serif;font-size:44px;letter-spacing:-0.02em;font-weight:300;line-height:1.05">Help make Lookout better</h1>
+      <p style="margin:0;font-size:18px;line-height:1.5;color:#2B414D">Lookout is a work in progress, and the list is small for now. Suggest an organization, flag something that’s wrong or out of date, or tell us what to build next. You don’t need to give your name or email.</p>
+    </div>
+
+    <sc-if value="{{sugNotSent}}" hint-placeholder-val="{{true}}">
+    <form onSubmit="{{sendSuggestion}}" style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:18px">
+      <fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+        <legend style="font-size:15px;font-weight:600;margin-bottom:10px">What’s your suggestion about?</legend>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{sugKinds}}" as="k" hint-placeholder-count="4"><button type="button" onClick="{{k.pick}}" aria-pressed="{{k.pressed}}" style="{{k.style}}">{{k.label}}</button></sc-for>
+        </div>
+      </fieldset>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label for="sug-org" style="font-size:15px;font-weight:600">Organization <span style="font-weight:400;color:#4D6370">(optional)</span></label>
+        <input id="sug-org" type="text" value="{{sugOrg}}" onChange="{{setSugOrg}}" placeholder="For example, Denver Rescue Mission" style="min-height:48px;padding:0 14px;border:1.5px solid #9FB2BC;border-radius:4px;font-size:16px;color:#18303C;background:#FFFFFF">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label for="sug-text" style="font-size:15px;font-weight:600">Your suggestion</label>
+        <textarea id="sug-text" rows="6" value="{{sugText}}" onChange="{{setSugText}}" placeholder="{{sugPlaceholder}}" style="padding:12px 14px;border:1.5px solid #9FB2BC;border-radius:4px;font-size:16px;line-height:1.5;color:#18303C;background:#FFFFFF;resize:vertical"></textarea>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px">
+        <button type="submit" style="min-height:52px;padding:0 26px;border:0;border-radius:999px;background:#18303C;color:#FFFFFF;font-size:17px;font-weight:700;cursor:pointer">Send anonymously</button>
+        <span style="font-size:14px;color:#4D6370">{{sugHint}}</span>
+      </div>
+    </form>
+    </sc-if>
+    <sc-if value="{{sugSent}}" hint-placeholder-val="{{false}}">
+      <div role="status" style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:24px;display:flex;flex-direction:column;gap:12px">
+        <h2 style="margin:0;font-family:'Archivo',sans-serif;font-size:26px;font-weight:400">Thank you</h2>
+        <p style="margin:0;font-size:16px;line-height:1.5;color:#2B414D">Your suggestion was sent without your name or email. We read every one.</p>
+        <p style="margin:0;font-size:14px;color:#9B1C12;font-weight:600">Prototype: suggestions aren’t delivered yet.</p>
+        <button type="button" onClick="{{sugAgain}}" style="align-self:flex-start;min-height:44px;padding:0 16px;background:#FFFFFF;border:1.5px solid #9FB2BC;border-radius:4px;font-size:15px;font-weight:600;color:#18303C;cursor:pointer">Send another</button>
+      </div>
+    </sc-if>
+  </div>
+
+  <aside style="flex:1 1 300px;max-width:420px;min-width:0;display:flex;flex-direction:column;gap:14px">
+    <section style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:8px">
+      <h2 style="margin:0;font-size:18px;font-weight:600">What helps most</h2>
+      <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.5;color:#2B414D">
+        <li>For a new organization: its name, town and website.</li>
+        <li>For a fix: which card or page, and what it should say.</li>
+        <li>For an idea: what you were trying to do.</li>
+      </ul>
+    </section>
+    <section style="background:#FFFFFF;border:1px solid #C9D6DC;border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:8px">
+      <h2 style="margin:0;font-size:18px;font-weight:600">Your privacy</h2>
+      <p style="margin:0;font-size:15px;line-height:1.5;color:#2B414D">We don’t ask who you are. If you’d like a reply, you can add a way to reach you in your message.</p>
+    </section>
+  </aside>
+</main>
+</sc-if>
+
+
+</div>
+</template>
+<script>
+(function(){
+  var ROOT, TPL, inst, rendering=false;
+  var STORE='lookout-v1';
+  function load(){ try { return JSON.parse(localStorage.getItem(STORE)||'{}')||{}; } catch(e){ return {}; } }
+  function save(st){ try { localStorage.setItem(STORE, JSON.stringify({ saved: st.saved||{}, log: st.didLog||[] })); } catch(e){} }
+  window.DCLogic = function(){ this.props = {}; var m = load(); this.state = m.saved ? { saved: m.saved, didLog: m.log||[] } : null; };
+  DCLogic.prototype.setState = function(p){
+    var prev = this.state;
+    var patch = typeof p === 'function' ? p(this.state||{}) : p;
+    this.state = Object.assign({}, this.state||{}, patch);
+    if (patch && ('saved' in patch || 'done' in patch)) {
+      if (patch.done === true) { var l=(this.state.didLog||[]).slice(); l.push({ id:this.state.actId||'', at:new Date().toISOString() }); this.state.didLog=l; }
+      save(this.state);
+    }
+    render(prev);
+  };
+  DCLogic.prototype.forceUpdate = function(){ render(this.state); };
+
+  var HOLE=/\{\{\s*([^}]+?)\s*\}\}/g, WHOLE=/^\s*\{\{\s*([^}]+?)\s*\}\}\s*$/;
+  function look(path, scope){
+    if (path==='true') return true; if (path==='false') return false; if (path==='null') return null;
+    if (/^-?\d+(\.\d+)?$/.test(path)) return Number(path);
+    var parts=path.split('.'), head=parts[0], v;
+    for (var i=scope.length-1;i>=0;i--){ if (scope[i] && Object.prototype.hasOwnProperty.call(scope[i],head)) { v=scope[i][head]; break; } }
+    for (var j=1;j<parts.length && v!=null;j++) v=v[parts[j]];
+    return v;
+  }
+  function str(v){ return v==null ? '' : String(v); }
+  function kids(node, scope, into){ for (var c=node.firstChild;c;c=c.nextSibling) build(c, scope, into); }
+  function build(node, scope, into){
+    if (node.nodeType===3){ into.appendChild(document.createTextNode(node.nodeValue.replace(HOLE,function(_,p){return str(look(p,scope));}))); return; }
+    if (node.nodeType!==1) return;
+    var tag=node.localName;
+    if (tag==='sc-if'){ var m=WHOLE.exec(node.getAttribute('value')||''); if (m && look(m[1],scope)) kids(node,scope,into); return; }
+    if (tag==='sc-for'){
+      var lm=WHOLE.exec(node.getAttribute('list')||''); var list=lm?look(lm[1],scope):null; var as=node.getAttribute('as')||'item';
+      (list||[]).forEach(function(item,i){ var s={}; s[as]=item; s.$index=i; kids(node, scope.concat([s]), into); }); return;
+    }
+    var real = tag.indexOf('dc-')===0 ? tag.slice(3) : tag;
+    var el = node.namespaceURI==='http://www.w3.org/2000/svg' ? document.createElementNS(node.namespaceURI, real) : document.createElement(real);
+    var deferredValue;
+    for (var a=0;a<node.attributes.length;a++){
+      var at=node.attributes[a], name=at.name, val=at.value;
+      if (name.indexOf('hint-')===0) continue;
+      var wm=WHOLE.exec(val);
+      if (name.indexOf('on')===0 && wm){
+        var fn=look(wm[1],scope); if (typeof fn!=='function') continue;
+        var ev=name.slice(2);
+        if (ev==='change' && (real==='textarea' || (real==='input' && (node.getAttribute('type')||'text')!=='checkbox'))) ev='input';
+        (function(f){ el.addEventListener(ev,function(e){ f(e); }); })(fn);
+        continue;
+      }
+      var v = wm ? look(wm[1],scope) : val.replace(HOLE,function(_,p){return str(look(p,scope));});
+      if (name==='value' && (real==='select'||real==='textarea'||real==='input')) { deferredValue=str(v); continue; }
+      if (v===false || v==null) continue;
+      el.setAttribute(name, v===true ? '' : String(v));
+    }
+    kids(node, scope, real==='template'?el.content:el);
+    if (deferredValue!==undefined){ el.value=deferredValue; if (real==='textarea') el.textContent=deferredValue; }
+    into.appendChild(el);
+  }
+  function render(prev){
+    if (rendering) return; rendering=true;
+    var act=document.activeElement, fid=act&&act.id, s0=null, s1=null;
+    try { if (fid && 'selectionStart' in act) { s0=act.selectionStart; s1=act.selectionEnd; } } catch(e){}
+    var vals=inst.renderVals(); var frag=document.createDocumentFragment();
+    kids(TPL.content, [vals], frag);
+    ROOT.replaceChildren(frag);
+    if (fid){ var n=document.getElementById(fid); if (n){ n.focus(); try { if (s0!=null) n.setSelectionRange(s0,s1); } catch(e){} } }
+    rendering=false;
+    if (prev!==undefined && inst.componentDidUpdate) inst.componentDidUpdate({}, prev||{});
+  }
+  window.__lookoutStart=function(Component){
+    ROOT=document.getElementById('app'); TPL=document.getElementById('dc');
+    inst=new Component(); render(); if (inst.componentDidMount) inst.componentDidMount();
+  };
+})();
+</script>
+<script>
+
+class Component extends DCLogic {
+  componentDidUpdate(prevProps, prevState) {
+    const p = prevState || {}, n = this.state || {};
+    if (p.screen !== n.screen || p.orgId !== n.orgId || p.actId !== n.actId) { try { window.scrollTo(0, 0); } catch (e) {} }
+  }
+  renderVals() {
+    const st = Object.assign({
+      screen: 'home', causes: { families: true }, ways: { time: true, goods: true },
+      whereMode: 'drive', drive: '30 min', town: 'Anywhere', sort: 'Soonest',
+      chips: {}, who: 'Any', saved: {},
+      action: 'goods', done: false, copied: false, digest: 'Monthly'
+    }, this.state || {});
+    const set = (o) => this.setState(o);
+    const go = (screen) => () => set({ screen: screen, menuOpen: false });
+    const openOrg = (id) => () => set({ screen: 'org', orgId: id, menuOpen: false });
+    const openAct = (id) => () => set({ screen: 'act', actId: id, done: false, menuOpen: false });
+
+    const T = {
+      time: { title: 'Register for the Winter Wonderland', where: 'You will finish on Thriving Families’ own registration form for the Holiday Reunion on Saturday, Dec 12 at 191 Yuma St.', steps: ['Pick Session A (11–1, arrive 10:30) or Session B (2–4, arrive 1:30).', 'Fill in their form. They have not posted role or age rules, so ask if you are bringing a group.', 'Want to help plan the event? Email Alexis Kihle at AlexisKihle@thrivingfamiliescolorado.org.'], btn: 'Open the registration form', opens: 'Opens their Jotform sign-up', contact: 'Questions: call or text 720-504-4624' },
+      money: { title: 'Start a monthly gift', where: 'You will finish on Thriving Families’ Colorado Gives page. We never handle money.', steps: ['New recurring gifts are matched by the Colorado Gives Foundation, up to $100 per gift, while the $250K match lasts.', 'Their campaign goal is $10,000. At last check: $150 from 2 donors.', 'Colorado Gives sends the receipt for your taxes.'], btn: 'Continue to ColoradoGives', opens: 'Opens their organization page, not the home page', contact: 'Receipts come from Colorado Gives' },
+      goods: { title: 'Drop off baby supplies', where: 'Thriving Families, 191 Yuma St., Denver 80223. Use the main entrance and their team will help you.', steps: ['Bring items that are clean, smoke-free and in working order: car seats (accident-free, not expired), strollers, clothing up to 5T, formula (unopened), diapers and wipes.', 'Come Mon–Fri 9–4, or call or text 720-504-4624 to set an appointment. Ask for a tax receipt at drop-off.', 'Please skip toys, full-size cribs, adult clothing and recalled items. They can point you to other places that take those.'], btn: 'Get directions', opens: 'Or email info@thrivingfamiliescolorado.org for a large drive', contact: 'Drop-off questions: call or text 720-504-4624' },
+      skills: { title: 'Offer to translate parent handouts', where: 'This goes straight to the Thriving Families team with the project details filled in.', steps: ['Project: English and Spanish handouts for families, in plain language.', 'About 6–10 hours, fully remote. Scope to be agreed with them.', 'They reply by email. We follow up if they don’t.'], btn: 'Open email draft', opens: 'Pre-filled subject and project summary', contact: 'Not quite your skill? Browse other scoped projects' }
+    };
+    const TOK = {
+      time: { label: 'Time', base: '#E89A5B', ink: '#8A430E', soft: '#F8DCC4', on: '#18303C' },
+      money: { label: 'Money', base: '#D9B76E', ink: '#6B4C00', soft: '#F7EDD0', on: '#18303C' },
+      goods: { label: 'Goods', base: '#3B6755', ink: '#2F5A49', soft: '#DDEBE4', on: '#FFFFFF' },
+      skills: { label: 'Skills', base: '#7FAECB', ink: '#2F6A90', soft: '#DCEBF4', on: '#18303C' }
+    };
+    Object.keys(TOK).forEach((k) => Object.assign(T[k], TOK[k]));
+    const KINDS = ['time', 'money', 'goods', 'skills'];
+    const SHAPE = { time: 'border-radius:999px', money: 'border-radius:2px;transform:rotate(45deg) scale(0.74)', goods: 'border-radius:3px', skills: 'clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)' };
+    const shapeStyle = (k, s) => 'display:inline-block;flex:none;width:' + s + 'px;height:' + s + 'px;background:' + T[k].base + ';' + SHAPE[k];
+    const badge = (k) => 'display:inline-flex;align-items:center;gap:8px;align-self:flex-start;padding:4px 12px 4px 8px;border-radius:999px;font-size:13px;font-weight:700;background:' + T[k].soft + ';color:' + T[k].ink;
+    const chipStyle = (on) => 'min-height:40px;padding:0 13px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid ' + (on ? '#18303C' : '#9FB2BC') + ';background:' + (on ? '#18303C' : '#FFFFFF') + ';color:' + (on ? '#FFFFFF' : '#18303C');
+    const single = (key, labels) => labels.map((label) => ({ label: label, pressed: String(st[key] === label), style: chipStyle(st[key] === label), pick: () => { const o = {}; o[key] = label; set(o); } }));
+    const multi = (labels) => labels.map((label) => ({ label: label, pressed: String(!!st.chips[label]), style: chipStyle(!!st.chips[label]), pick: () => { const c = Object.assign({}, st.chips); c[label] = !c[label]; set({ chips: c }); } }));
+
+    const stepDefs = [[1, 'Causes & ways', 'home'], [2, 'Place & needs', 'results'], [3, 'Organization', 'org'], [4, 'Act', 'act'], [5, 'Save & share', 'share']];
+    const extraDefs = [['i', 'About the ratings', 'ratings'], ['?', 'Suggestions', 'suggest']];
+    const menuItem = (d) => {
+      const on = st.screen === d[2];
+      return {
+        n: d[0], label: d[1], go: go(d[2]), current: on ? 'page' : 'false',
+        itemStyle: 'display:flex;align-items:center;gap:12px;min-height:44px;width:100%;padding:0 10px;border:0;border-radius:6px;cursor:pointer;text-align:left;font-size:15px;font-weight:' + (on ? '700' : '500') + ';color:#18303C;background:' + (on ? '#F8DCC4' : 'transparent'),
+        numStyle: 'display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;border-radius:999px;font-size:13px;font-weight:600;color:' + (on ? '#FFFFFF' : '#18303C') + ';background:' + (on ? '#18303C' : '#E6EEF1')
+      };
+    };
+    const steps = stepDefs.map(menuItem);
+    const extras = extraDefs.map(menuItem);
+    const curStep = stepDefs.filter((x) => x[2] === st.screen)[0];
+    const curExtra = extraDefs.filter((x) => x[2] === st.screen)[0];
+    const menuLabel = curStep ? 'Step ' + curStep[0] + ' of ' + stepDefs.length + ' · ' + curStep[1] : (curExtra ? curExtra[1] : 'Menu');
+    const menuShort = curStep ? curStep[0] + ' / ' + stepDefs.length : (curExtra ? curExtra[1] : 'Menu');
+    const ORG_INFO = {"cch": {"desc": "Integrated housing, health care (including Stout Street Health Center) and support services to prevent and end homelessness.", "tag": "Founded 1984", "address": "2111 Champa St., Denver", "phone": "", "impact": "Serves 20,000+ people a year, with about 1,030 staff."}, "drm": {"desc": "Faith-based emergency shelter, addiction recovery (the New Life Program), transitional housing, and food, clothing and furniture for people in need.", "tag": "Founded 1892 · Christian", "address": "6100 Smith Rd., Denver", "phone": "303.297.1815", "impact": "Served 11,589 people and 1.24 million meals in 2024."}, "urbanpeak": {"desc": "Help for young people ages 15 to 24 experiencing homelessness: street outreach, a drop-in center, overnight shelter, housing and the Peak Thrift social enterprise.", "tag": "Founded 1988", "address": "1630 S. Acoma St., Denver", "phone": "303.974.2950", "impact": "The only Denver nonprofit offering the full range of services for homeless youth."}, "sfc": {"desc": "A day shelter and “transformation hub” for adults experiencing homelessness: outreach, daytime shelter, housing, employment and health care.", "tag": "Founded 1983 · Episcopal roots", "address": "2323 Curtis St., Denver", "phone": "720.510.3007", "impact": "About 500 guests a day, supported by 300+ volunteers a year."}, "joshua": {"desc": "Long-term transitional housing for families experiencing homelessness, with family advocates, financial classes, therapy access, and education and job help.", "tag": "Founded 2001 · Christian", "address": "2330 W. Mulberry Pl., Denver", "phone": "", "impact": "Room for 30 families at a time. Its parent, Mile High Ministries, also runs Clara Brown Commons housing."}, "ccd": {"desc": "The charitable arm of the Archdiocese of Denver: shelters (including Samaritan House), early childhood, family and senior services, and affordable housing.", "tag": "Founded 1928 · Catholic", "address": "", "phone": "", "impact": "About 770 staff serving the Denver metro and northern Colorado."}, "mhuw": {"desc": "School readiness, youth success and adult self-sufficiency. Funds and convenes local nonprofits and runs the 2-1-1 help line.", "tag": "Founded 1887", "address": "", "phone": "", "impact": "The first United Way in the U.S., with 40,000+ donors, 800 businesses and 100 nonprofit partners."}, "efaa": {"desc": "Basic needs and financial stability in Boulder: food, financial assistance, and emergency and transitional housing.", "tag": "Founded 1962", "address": "1575 Yarmouth Ave., Boulder", "phone": "303-442-3042", "impact": "Coordinates a network of human-service groups, schools, congregations and police."}, "carmen": {"desc": "A family resource center for East Boulder County: food bank, financial help, case management and a thrift store.", "tag": "Founded 1978", "address": "655 Aspen Ridge Dr., Lafayette", "phone": "303-665-4342", "impact": "The only full family-services center in East Boulder County."}, "weecycle": {"desc": "Recycles essential baby gear and matches it to Colorado families in need through partner agencies, and hands out diapers, wipes, formula and baby food at Mobile Baby Essentials events.", "tag": "Founded 2008", "address": "", "phone": "720.319.7792", "impact": "Served 146,867 infants and toddlers in 2024 (some more than once)."}, "ctk": {"desc": "Free new and quality used school clothing for students ages 3 to 21 from low-income or in-crisis families, chosen in a boutique-style store.", "tag": "Founded 2008", "address": "2890 S. Colorado Blvd., Unit M-3, Denver", "phone": "720-379-4630", "impact": "Gave its 100,000th school wardrobe in 2023 and serves the 11-county Denver metro."}, "voa": {"desc": "Meals on Wheels and senior dining centers, plus shelters, veterans and family programs.", "tag": "Founded 1896 · Christian roots", "address": "", "phone": "", "impact": "Served 106,702 people in 2023, with Meals on Wheels in 8 counties."}, "sss": {"desc": "Day shelter, meals, case management and housing help for low-income and homeless adults 60 and older.", "tag": "Founded 1976", "address": "846 E. 18th Ave., Denver", "phone": "303-832-1622", "impact": "Denver’s only day center for seniors, at 18th and Emerson since 1995."}, "alh": {"desc": "A neighbor-to-neighbor volunteer network that helps older adults stay in their homes, with rides, chores, yard work and friendly visits.", "tag": "Nonprofit since 2008", "address": "", "phone": "", "impact": "Volunteer-powered. Service Saturdays send groups to 100+ homes at a time."}, "dsf": {"desc": "College advising and need-based scholarships for Denver Public Schools graduates.", "tag": "Founded 2006", "address": "", "phone": "", "impact": "Runs Future Centers inside DPS high schools."}, "uplift": {"desc": "Full-time Teacher/Mentors who stay with urban students from elementary school through college and career.", "tag": "Founded 1982", "address": "", "phone": "303.830.6615", "impact": "Long-term, relationship-based mentoring in Denver and Aurora schools."}, "ihdf": {"desc": "Long-term support for students from low-income communities, from elementary school through college.", "tag": "Founded 1992", "address": "", "phone": "303-444-3636", "impact": "560 Dreamer Scholars in 2022, at learning centers across Boulder County."}, "fbr": {"desc": "The regional Feeding America food bank, supplying partner pantries and programs in northern Colorado and all of Wyoming.", "tag": "Founded 1978", "address": "10700 E. 45th Ave., Denver", "phone": "", "impact": "94 million pounds of food and 417,317 people served in 2023, through 800+ partners."}, "cfs": {"desc": "The food bank for Boulder and Broomfield counties, distributing directly and through partner agencies.", "tag": "Founded 1981", "address": "650 S. Taylor Ave., Louisville", "phone": "(303) 652-3663", "impact": "Says each $1 provides $5 of groceries."}, "wdw": {"desc": "Recovers surplus food from the food industry and delivers it to 100+ hunger-relief groups, and runs free Mobile Food Markets.", "tag": "Founded 2009", "address": "", "phone": "", "impact": "About 23 million servings of food recovered in 2023."}, "metro": {"desc": "A choice-based fresh food market, plus programs on hunger's root causes: nutrition education, ID help, urban farming and organizing.", "tag": "Founded 1974", "address": "1100 E. 18th Ave., Denver", "phone": "303-860-7200", "impact": "Denver’s frontline anti-hunger organization."}, "sacred": {"desc": "Shelter and support for single mothers with children and single women experiencing homelessness, through In-House Stabilization, Transitional Housing and Follow-Up programs.", "tag": "Founded 1980 · Catholic roots, non-sectarian", "address": "2844 Lawrence St., Denver", "phone": "303-296-6686", "impact": "Helped 1,204 women, children and family members in 2024."}, "ppuw": {"desc": "Education, financial stability and health for El Paso and Teller counties. Runs 2-1-1, free tax prep and a Family Success Center with the Sunny Side Market and a Community Closet.", "tag": "Founded 1922", "address": "518 N. Nevada Ave., Colorado Springs", "phone": "", "impact": "Served 100,000+ people last year and reached 50,661 people through 2-1-1."}, "savio": {"desc": "In-home family therapy for children, youth and families (Medicaid accepted): teen behavioral concerns, trauma, parents in recovery (Bluestem), early childhood caregiver support, and licensed foster care.", "tag": "Founded 1966", "address": "", "phone": "", "impact": "Offices in Denver, Colorado Springs and Longmont, with about 210 staff."}, "amigas": {"desc": "A holiday Adopt a Family program where donors shop children’s need and wish lists and give food money for winter break, plus a year-round Empowerment Fund for groceries, rent, utilities and mental health. Families are referred by Denver and Aurora Public Schools social workers.", "tag": "Started 2009 · nonprofit since 2020", "address": "Gift drop-off: Wyatt Academy, 3620 Franklin St., Denver", "phone": "", "impact": "Started by two Title I first-grade teachers with 9 children in 2009; now 3,500+ children served. A small, volunteer-run group."}};
+    const DONATE = {"cch": "https://www.coloradocoalition.org/donate", "drm": "https://my.denverrescuemission.org/denver-rescue-mission/checkout/drm-donate?campaign=325804", "urbanpeak": "https://urbanpeak.org/donate", "sfc": "https://www.sfcdenver.org/donate/financial/", "joshua": "https://milehighmin.org/donate/", "ccd": "https://ccdenver.org/donate/", "mhuw": "https://donate.unitedwaydenver.org/unitedwaydenver/get-involved/donate/give-now", "efaa": "https://www.efaa.org/donate/", "carmen": "https://secure.qgiv.com/for/sccc", "weecycle": "https://weecycle.org/get-involved/monetary-donation/", "ctk": "https://clothestokidsdenver.org/donate/", "voa": "https://www.voacolorado.org/?form=give&recurring=once", "sss": "https://www.seniorsupportservices.org/donate", "alh": "https://alittlehelp.org/donate/", "dsf": "https://denverscholarship.org/get-involved/donate/", "uplift": "https://coloradouplift.org/donate", "ihdf": "https://www.ihaveadreamboulder.org/give", "fbr": "https://give.foodbankrockies.org/page/76289/donate/1", "cfs": "https://communityfoodshare.org/ways-to-give/", "wdw": "https://www.wedontwaste.org/donate/", "metro": "https://www.metrocaring.org/donate", "sacred": "https://sacredhearthouse.com/donate/", "ppuw": "https://engage.ppunitedway.org/epledge/comm/SinglePageRegPledge.jsp", "savio": "https://www.saviohouse.org/general-donation", "amigas": "https://www.amigasinaction.org/donate", "mesa": "https://thrivingfamiliescolorado.org/give-now"};
+    const SUG_KINDS = [['org', 'Add an organization', 'Which organization, where is it, and what is its website?'], ['fix', 'Fix information', 'Which card or page, and what should it say?'], ['idea', 'Make the site more useful', 'What were you trying to do, and what would have helped?'], ['other', 'Other', 'What would you like us to know?']];
+    const sugKind = st.sugKind || 'org';
+    const sugKinds = SUG_KINDS.map((k) => ({ label: k[1], pressed: String(sugKind === k[0]), style: chipStyle(sugKind === k[0]), pick: () => set({ sugKind: k[0] }) }));
+    const RATINGS = [{"id": "cch", "name": "Colorado Coalition for the Homeless", "cn": "4 / 4 stars · 97%", "cnBig": "4 / 4 stars", "cnSub": "97% score", "cnHref": "https://www.charitynavigator.org/ein/840951575"}, {"id": "drm", "name": "Denver Rescue Mission", "cn": "4 / 4 stars · 100%", "cnBig": "4 / 4 stars", "cnSub": "100% score", "cnHref": "https://www.charitynavigator.org/ein/846038762"}, {"id": "urbanpeak", "name": "Urban Peak", "cn": "4 / 4 stars · 100%", "cnBig": "4 / 4 stars", "cnSub": "100% score", "cnHref": "https://www.charitynavigator.org/ein/841212246"}, {"id": "sfc", "name": "St. Francis Center", "cn": "4 / 4 stars · 96%", "cnBig": "4 / 4 stars", "cnSub": "96% score", "cnHref": "https://www.charitynavigator.org/ein/841185856"}, {"id": "joshua", "name": "Joshua Station (Mile High Ministries)", "cn": "4 / 4 stars · 97%", "cnBig": "4 / 4 stars", "cnSub": "97% score", "cnHref": "https://www.charitynavigator.org/ein/840782214"}, {"id": "ccd", "name": "Catholic Charities of Denver", "cn": "4 / 4 stars · 100%", "cnBig": "4 / 4 stars", "cnSub": "100% score", "cnHref": "https://www.charitynavigator.org/ein/840686679"}, {"id": "mhuw", "name": "Mile High United Way", "cn": "4 / 4 stars · 100%", "cnBig": "4 / 4 stars", "cnSub": "100% score", "cnHref": "https://www.charitynavigator.org/ein/840404235"}, {"id": "efaa", "name": "Emergency Family Assistance Association (EFAA)", "cn": "4 / 4 stars · 95%", "cnBig": "4 / 4 stars", "cnSub": "95% score", "cnHref": "https://www.charitynavigator.org/ein/840454115"}, {"id": "carmen", "name": "Sister Carmen Community Center", "cn": "4 / 4 stars · 96%", "cnBig": "4 / 4 stars", "cnSub": "96% score", "cnHref": "https://www.charitynavigator.org/ein/840820308"}, {"id": "weecycle", "name": "WeeCycle", "cn": "4 / 4 stars · 91%", "cnBig": "4 / 4 stars", "cnSub": "91% score", "cnHref": "https://www.charitynavigator.org/ein/823096264"}, {"id": "mesa", "name": "Thriving Families", "cn": "4 / 4 stars · 95%", "cnBig": "4 / 4 stars", "cnSub": "95% score", "cnHref": "https://www.charitynavigator.org/ein/841993572"}, {"id": "ctk", "name": "Clothes To Kids of Denver", "cn": "3 / 4 stars · 86%", "cnBig": "3 / 4 stars", "cnSub": "86% score", "cnHref": "https://www.charitynavigator.org/ein/262148733"}, {"id": "voa", "name": "Volunteers of America Colorado", "cn": "Not rated (no public 990)", "cnBig": "Not rated", "cnSub": "No public Form 990", "cnHref": "https://www.charitynavigator.org/ein/840430995"}, {"id": "sss", "name": "Senior Support Services", "cn": "3 / 4 stars · 85%", "cnBig": "3 / 4 stars", "cnSub": "85% score", "cnHref": "https://www.charitynavigator.org/ein/840801612"}, {"id": "alh", "name": "A Little Help", "cn": "4 / 4 stars · 98%", "cnBig": "4 / 4 stars", "cnSub": "98% score", "cnHref": "https://www.charitynavigator.org/ein/830494129"}, {"id": "dsf", "name": "Denver Scholarship Foundation", "cn": "4 / 4 stars · 97%", "cnBig": "4 / 4 stars", "cnSub": "97% score", "cnHref": "https://www.charitynavigator.org/ein/205143175"}, {"id": "uplift", "name": "Colorado UpLift", "cn": "4 / 4 stars · 98%", "cnBig": "4 / 4 stars", "cnSub": "98% score", "cnHref": "https://www.charitynavigator.org/ein/840889330"}, {"id": "ihdf", "name": "I Have A Dream Foundation of Boulder County", "cn": "4 / 4 stars · 97%", "cnBig": "4 / 4 stars", "cnSub": "97% score", "cnHref": "https://www.charitynavigator.org/ein/841150542"}, {"id": "fbr", "name": "Food Bank of the Rockies", "cn": "4 / 4 stars · 93%", "cnBig": "4 / 4 stars", "cnSub": "93% score", "cnHref": "https://www.charitynavigator.org/ein/840772672"}, {"id": "cfs", "name": "Community Food Share", "cn": "4 / 4 stars · 93%", "cnBig": "4 / 4 stars", "cnSub": "93% score", "cnHref": "https://www.charitynavigator.org/ein/742227731"}, {"id": "wdw", "name": "We Don", "cn": "4 / 4 stars · 100%", "cnBig": "4 / 4 stars", "cnSub": "100% score", "cnHref": "https://www.charitynavigator.org/ein/270585966"}, {"id": "metro", "name": "Metro Caring", "cn": "4 / 4 stars · 92%", "cnBig": "4 / 4 stars", "cnSub": "92% score", "cnHref": "https://www.charitynavigator.org/ein/846116951"}, {"id": "savio", "name": "Savio House", "cn": "4 / 4 stars · 91%", "cnBig": "4 / 4 stars", "cnSub": "91% score", "cnHref": "https://www.charitynavigator.org/ein/840570279"}, {"id": "amigas", "name": "Amigas in Action", "cn": "Not rated (too small for a full 990)", "cnBig": "Not rated", "cnSub": "Too small to file a full Form 990", "cnHref": "https://www.charitynavigator.org/ein/843332618"}];
+
+    const CAUSES = [['unhoused', 'Supporting the unhoused', 0], ['families', 'Family support', 16], ['education', 'Education', 64], ['food', 'Food insecurity', 84], ['seniors', 'Seniors', 28], ['mental', 'Mental / behavioral health', 40], ['holiday', 'Holiday Meals & Gift Giving', 0]];
+    const causeName = (id) => CAUSES.filter((c) => c[0] === id)[0][1];
+    const ORGS = [
+      { id: 'mesa', name: 'Thriving Families', town: 'Denver', mins: 25, causes: ['families'], confirmed: 'Draft from public sources', real: true },
+      { id: "cch", name: "Colorado Coalition for the Homeless", town: "Denver", mins: 25, causes: ["unhoused"], confirmed: "From their materials, Nov 2026", real: true, site: "https://www.coloradocoalition.org/" },
+      { id: "drm", name: "Denver Rescue Mission", town: "Denver", mins: 25, causes: ["unhoused", "holiday"], confirmed: "From their website, Nov 2026", real: true, site: "https://denverrescuemission.org/" },
+      { id: "urbanpeak", name: "Urban Peak", town: "Denver", mins: 25, causes: ["unhoused"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.urbanpeak.org/" },
+      { id: "sfc", name: "St. Francis Center", town: "Denver", mins: 25, causes: ["unhoused"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.sfcdenver.org/" },
+      { id: "joshua", name: "Joshua Station (Mile High Ministries)", town: "Denver", mins: 20, causes: ["unhoused", "holiday"], confirmed: "From their website, Nov 2026", real: true, site: "https://milehighmin.org/" },
+      { id: "ccd", name: "Catholic Charities of Denver", town: "Denver", mins: 30, causes: ["families", "holiday"], confirmed: "From their website, Nov 2026", real: true, site: "https://ccdenver.org/" },
+      { id: "mhuw", name: "Mile High United Way", town: "Denver", mins: 25, causes: ["families", "holiday"], confirmed: "From their website, Nov 2026", real: true, site: "https://unitedwaydenver.org/" },
+      { id: "efaa", name: "Emergency Family Assistance Association (EFAA)", town: "Boulder", mins: 30, causes: ["families", "holiday"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.efaa.org/" },
+      { id: "carmen", name: "Sister Carmen Community Center", town: "Lafayette", mins: 35, causes: ["families"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.sistercarmen.org/" },
+      { id: "weecycle", name: "WeeCycle", town: "Aurora", mins: 40, causes: ["families"], confirmed: "From their website, Nov 2026", real: true, site: "https://weecycle.org/" },
+      { id: "ctk", name: "Clothes To Kids of Denver", town: "Denver", mins: 30, causes: ["families"], confirmed: "From their website, Nov 2026", real: true, site: "https://clothestokidsdenver.org/" },
+      { id: "voa", name: "Volunteers of America Colorado", town: "Denver", mins: 25, causes: ["seniors", "holiday"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.voacolorado.org/" },
+      { id: "sss", name: "Senior Support Services", town: "Denver", mins: 25, causes: ["seniors"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.seniorsupportservices.org/" },
+      { id: "alh", name: "A Little Help", town: "Denver", mins: 25, causes: ["seniors"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.alittlehelp.org/" },
+      { id: "dsf", name: "Denver Scholarship Foundation", town: "Denver", mins: 25, causes: ["education"], confirmed: "From their website, Nov 2026", real: true, site: "https://denverscholarship.org/" },
+      { id: "uplift", name: "Colorado UpLift", town: "Denver", mins: 25, causes: ["education", "holiday"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.coloradouplift.org/" },
+      { id: "ihdf", name: "I Have A Dream Foundation of Boulder County", town: "Boulder", mins: 30, causes: ["education", "holiday"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.ihaveadreamboulder.org/" },
+      { id: "fbr", name: "Food Bank of the Rockies", town: "Denver", mins: 35, causes: ["food"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.foodbankrockies.org/" },
+      { id: "cfs", name: "Community Food Share", town: "Louisville", mins: 30, causes: ["food"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.communityfoodshare.org/" },
+      { id: "wdw", name: "We Don't Waste", town: "Denver", mins: 25, causes: ["food"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.wedontwaste.org/" },
+      { id: "metro", name: "Metro Caring", town: "Denver", mins: 25, causes: ["food"], confirmed: "From their website, Nov 2026", real: true, site: "https://www.metrocaring.org/" },
+      { id: "savio", name: "Savio House", town: "Denver", mins: 20, causes: ["mental", "holiday"], confirmed: "From their website and Form 990, Nov 2026", real: true, site: "https://www.saviohouse.org/" },
+      { id: "amigas", name: "Amigas in Action", town: "Denver", mins: 25, causes: ["families", "holiday"], confirmed: "From their website and Form 990, Nov 2026", real: true, site: "https://www.amigasinaction.org/" }
+    ];
+    const orgOf = (id) => ORGS.filter((o) => o.id === id)[0];
+    const A = ['solo', 'small', 'large'];
+    // id, org, ask, type, causes, cadence, often, when, groups, town, mins, badges, confirmed, urgent, order, actText
+    const ROWS = [
+      ['n1', 'mesa', 'Baby gear, clothing, formula and diapers for new families', 'goods', ['families'], 'Standing need', 'Standing', null, null, 'Denver', 25, ['Mon–Fri 9–4 or by appointment', 'Clean, working, no recalls'], 'From their website', false, 3, 'See drop-off details', "https://thrivingfamiliescolorado.org/baby-gear-donations"],
+      ['n2', 'mesa', 'Volunteer at the Winter Wonderland Holiday Reunion, Sat Dec 12', 'time', ['families'], 'Seasonal · Dec 12, two sessions', 'Seasonal', ['Weekends'], null, 'Denver', 25, ['Session A 11–1', 'Session B 2–4'], 'Registration open', false, 1, 'Register to volunteer', "https://thrivingfamiliescolorado.org/"],
+      ['n25', 'mesa', 'Toy Shoppe: new toys and books for ages 0–16', 'goods', ['families'], 'Seasonal · holiday drive', 'Seasonal', null, null, 'Denver', 25, ['New only', 'Collection box or wish list'], 'From their website', false, 3.1, 'See drop-off details', "https://www.amazon.com/registries/gl/guest-view/VJCWZPM01XUJ"],
+      ['n20', 'mesa', 'Give to Thriving Families, one-time or monthly', 'money', ['families'], 'Any time · one-time or monthly', 'Standing', null, null, 'Denver', 25, ['Card or bank transfer', 'Monthly gifts on Colorado Gives can be matched'], 'From their website', false, 2.1, 'Give on their website', "https://thrivingfamiliescolorado.org/give-now"],
+      ['n21', 'mesa', 'Translate and review parent handouts (English and Spanish)', 'skills', ['families'], 'One-time · 6–10 hrs (to scope)', 'One-time', null, null, 'Remote', 0, ['Remote OK', 'Proposed project'], 'Draft · to confirm', false, 5.1, 'Email the team', "mailto:info@thrivingfamiliescolorado.org"],
+      ['h1', 'ccd', 'Adopt a family or individual: shop from their wish list', 'goods', ['holiday'], 'Seasonal · adoptions close Wed, Dec 2', 'Seasonal', null, null, 'Denver', 30, ['28th annual', 'Recipients nominated by their staff'], 'From their website, Nov 2026', false, 7, 'See how to adopt', 'https://ccdenver.org/adoptafamily/'],
+      ['h2', 'ccd', 'Prefer not to shop? Give or buy gift cards and they shop for you', 'money', ['holiday'], 'Seasonal · adoptions close Wed, Dec 2', 'Seasonal', null, null, 'Denver', 30, ['They shop for you', 'Gift cards accepted'], 'From their website, Nov 2026', false, 7.1, 'See how to give', 'https://ccdenver.org/adoptafamily/'],
+      ['h5', 'savio', 'Adopt-a-Family 2026: shop a family or child wish list', 'goods', ['holiday'], 'Seasonal · drop off Dec 11–14', 'Seasonal', null, null, 'Denver', 20, ['Anonymous', 'For Savio families'], 'From their website, Nov 2026', false, 7.4, 'See how to adopt', 'https://www.saviohouse.org/blog/adopt-a-family-blog'],
+      ['h6', 'savio', 'Give toward larger families and last-minute gifts', 'money', ['holiday'], 'Seasonal · through mid-December', 'Seasonal', null, null, 'Denver', 20, ['One-time or recurring'], 'From their website, Nov 2026', false, 7.5, 'See how to give', 'https://www.saviohouse.org/blog/adopt-a-family-blog'],
+      ['h7', 'amigas', 'Sponsor a child or family: need list plus a wish item', 'goods', ['holiday'], 'Seasonal · gifts due Mon, Dec 14', 'Seasonal', null, null, 'Denver', 25, ['About $200+ per child', 'Drop off at Wyatt Academy, 3620 Franklin St.'], 'From their website, Nov 2026', false, 7.6, 'See how to sponsor', 'https://www.amigasinaction.org/faq'],
+      ["c1", "cch", "Give to housing, health care and support services", "money", ["unhoused"], "Any time · one-time or monthly", "Standing", null, null, "Denver", 25, ["Founded 1984", "Serves 20,000+ people a year"], "From their materials, Nov 2026", false, 10, "Give to the Coalition", "https://www.coloradocoalition.org/donate"],
+      ["c2", "cch", "Winter survival kits: gloves, socks, hats, hand warmers, snacks", "goods", ["unhoused"], "October–April · drop-off by appointment only", "Standing", null, null, "Denver", 25, ["Email in-kind-giving@coloradocoalition.org", "Amazon wish lists too"], "From their website, Nov 2026", false, 11, "See what they accept", "https://www.coloradocoalition.org/donateitems"],
+      ["c3", "cch", "Volunteer with the Coalition", "time", ["unhoused"], "Ongoing · email to get started", "Standing", null, null, "Denver", 25, ["Email volunteers@coloradocoalition.org"], "From their materials, Nov 2026", false, 12, "Email to volunteer", "mailto:volunteers@coloradocoalition.org"],
+      ["d1", "drm", "Serve meals, sort clothing or become a mentor", "time", ["unhoused"], "Short- and long-term roles", "Standing", null, null, "Denver", 25, ["Short- or long-term", "Since 1892"], "From their website, Nov 2026", false, 13, "See how to volunteer", "https://www.denverrescuemission.org/faq"],
+      ["d2", "drm", "Donate clothing, non-perishable food and hygiene items", "goods", ["unhoused"], "Ongoing · check what they accept", "Standing", null, null, "Denver", 25, ["Most needed sizes: M, L, XL", "Canned goods, pasta, rice, beans"], "From their website, Nov 2026", false, 14, "See what to donate", "https://denverrescuemission.org/give-items"],
+      ["u1", "urbanpeak", "Help serve meals to youth: 3 meals a day, 365 days a year", "time", ["unhoused"], "Weekdays 9–5 · sign up for a slot", "Standing", ["Weekdays"], null, "Denver", 25, ["Ages 18+", "Sign up on SignUpGenius"], "From their website, Nov 2026", false, 15, "See volunteer slots", "https://www.urbanpeak.org/volunteer"],
+      ["u2", "urbanpeak", "Donate and assemble kits for youth, a remote option", "goods", ["unhoused"], "Ongoing · kit type depends on current needs", "Standing", null, null, "Denver", 25, ["Good for groups", "In-kind: 303.974.2951"], "From their website, Nov 2026", false, 16, "See kit details", "https://urbanpeak.org/volunteer/partners"],
+      ["u3", "urbanpeak", "Give to youth exiting homelessness", "money", ["unhoused"], "Any time · one-time or recurring", "Standing", null, null, "Denver", 25, ["Ages 15 to 24 served"], "From their website, Nov 2026", false, 17, "Give to Urban Peak", "https://urbanpeak.org/donate"],
+      ["s1", "sfc", "Volunteer at the day shelter, open 7 days a week", "time", ["unhoused"], "Commit 3+ months · application, screening and interview", "Standing", null, null, "Denver", 25, ["Ages 18+ for guest-facing roles", "300+ volunteers a year"], "From their website, Nov 2026", false, 18, "See how to volunteer", "https://www.sfcdenver.org/volunteer/"],
+      ["s2", "sfc", "Give to the day shelter and outreach", "money", ["unhoused"], "Any time", "Standing", null, null, "Denver", 25, ["10,000+ people helped in 2024"], "From Colorado Gives, Nov 2026", false, 19, "Give to St. Francis Center", "https://www.sfcdenver.org/donate/financial/"],
+      ["j1", "joshua", "Babysit during groups, cook the Thursday community dinner, or staff the front desk", "time", ["unhoused"], "Weekly, monthly or one-time", "Standing", null, ["small", "large"], "Denver", 20, ["Dinner for 70–90 people", "Front desk weekdays 9–4"], "From their website, Nov 2026", false, 20, "See volunteer roles", "https://milehighmin.org/volunteer/"],
+      ["j2", "joshua", "Give to \"Housing That Heals\"", "money", ["unhoused"], "Any time", "Standing", null, null, "Denver", 20, ["Transitional housing for families"], "From public listings, Nov 2026", false, 21, "Give to Mile High Ministries", "https://milehighmin.org/donate/"],
+      ["cc1", "ccd", "New undergarments and hygiene items for their shelters", "goods", ["families"], "Ongoing · new, in the packaging", "Standing", null, null, "Denver", 30, ["Women's Care Project", "New items only"], "From their website, Nov 2026", false, 22, "See donation drives", "https://ccdenver.org/donation-drives/"],
+      ["m1", "mhuw", "Volunteer at events and drives", "time", ["families"], "Ongoing · sign up on Volunteer United", "Standing", null, null, "Denver", 25, ["Back to School Bash", "Children’s Holiday Party"], "From their website, Nov 2026", false, 23, "See volunteer options", "https://unitedwaydenver.org/volunteer"],
+      ["m2", "mhuw", "Help with free tax prep in tax season", "skills", ["families"], "Seasonal · January to April", "Seasonal", null, null, "Denver", 25, ["No tax background needed"], "From their website, Nov 2026", false, 24, "See tax-prep volunteering", "https://unitedwaydenver.org/volunteer"],
+      ["m3", "mhuw", "Give to Mile High United Way", "money", ["families"], "Any time", "Standing", null, null, "Denver", 25, ["The first United Way in the U.S."], "From their website, Nov 2026", false, 25, "Give to Mile High United Way", "https://donate.unitedwaydenver.org/unitedwaydenver/get-involved/donate/give-now"],
+      ["e1", "efaa", "Donate food and personal care items", "goods", ["families"], "Drop off daily, 8:30–11:30 a.m.", "Standing", null, null, "Boulder", 30, ["1575 Yarmouth Ave., Boulder", "No clothing or furniture"], "From their website, Nov 2026", false, 26, "See what to donate", "https://www.efaa.org/donate/food/"],
+      ["e2", "efaa", "Food bank volunteer: greet, stock shelves, take donations", "time", ["families"], "Morning or afternoon shifts", "Standing", null, null, "Boulder", 30, ["Training provided"], "From their website, Nov 2026", false, 27, "See volunteer roles", "https://efaa.org/volunteer/opportunities/"],
+      ["e3", "efaa", "Give: $50 can help feed a family for a week", "money", ["families"], "Any time", "Standing", null, null, "Boulder", 30, ["Food, housing and financial help"], "From their website, Nov 2026", false, 28, "Give to EFAA", "https://www.efaa.org/donate/"],
+      ["sc1", "carmen", "Donate gently used goods to the thrift store", "goods", ["families"], "Ongoing · proceeds fund local families", "Standing", null, null, "Lafayette", 35, ["701 W. Baseline Rd., Lafayette"], "From their website, Nov 2026", false, 29, "See Sister Carmen", "https://www.sistercarmen.org/"],
+      ["sc2", "carmen", "Volunteer in ways that match your skills and schedule", "time", ["families"], "Ongoing", "Standing", null, null, "Lafayette", 35, ["Food bank and thrift store"], "From their website, Nov 2026", false, 30, "See how to give time", "https://www.sistercarmen.org/give-help/give-time/"],
+      ["sc3", "carmen", "Give on Colorado Gives Day, boosted by the $1M+ Incentive Fund", "money", ["families"], "Seasonal · Colorado Gives Day is Tue, Dec 8", "Seasonal", null, null, "Lafayette", 35, ["Early giving is open"], "From their website, Nov 2026", false, 31, "Give on ColoradoGives", "https://www.coloradogives.org/organization/Sistercarmen"],
+      ["w1", "weecycle", "Donate baby gear: cribs (2012 or newer), accident-free car seats", "goods", ["families"], "Ongoing · check recalls at cpsc.gov first", "Standing", null, null, "Aurora", 40, ["Gently used is fine", "Pickup for a $40+ donation"], "From their website, Nov 2026", false, 32, "See what they accept", "https://weecycle.org/gear-donation"],
+      ["w2", "weecycle", "Sort gear at the warehouse or help at a baby-essentials distribution", "time", ["families"], "Ongoing · family-friendly shifts too", "Standing", null, null, "Aurora", 40, ["Family-friendly shifts", "Some lifting"], "From their website, Nov 2026", false, 33, "See volunteer shifts", "https://weecycle.org/get-involved/volunteer/"],
+      ["k1", "ctk", "Donate school clothing and shoes for students 3 to 21", "goods", ["families"], "Drop off Tue–Fri 9–4, Sat 9–3", "Standing", null, null, "Denver", 30, ["2890 S. Colorado Blvd.", "Nothing left outside after hours"], "From their website, Nov 2026", false, 34, "See donation guidelines", "https://clothestokidsdenver.org/donate/"],
+      ["k2", "ctk", "Volunteer in the boutique: sort, tag or be a personal shopper", "time", ["families"], "Ongoing · flexible shifts", "Standing", null, null, "Denver", 30, ["Training on the job"], "From their website, Nov 2026", false, 35, "See Clothes To Kids", "https://clothestokidsdenver.org/"],
+      ["v1", "voa", "Deliver Meals on Wheels lunches, or Market Meals on Saturdays", "time", ["seniors"], "Mon–Sat, 8:30–11 a.m. · weekly, biweekly or monthly", "Standing", ["Weekdays", "Weekends"], null, "Denver", 25, ["Driver's license and background check", "Your own car"], "From their website, Nov 2026", false, 36, "See volunteer roles", "https://www.voacolorado.org/individual-volunteer-opportunities/"],
+      ["v2", "voa", "Adopt a family for Christmas", "goods", ["holiday"], "Seasonal · sign up on their holiday page", "Seasonal", null, null, "Denver", 25, ["Families and individuals"], "From their website, Nov 2026", false, 37, "See Adopt a Family", "https://www.voacolorado.org/holiday-giving/"],
+      ["v3", "voa", "Winter needs: $50 buys a sleeping bag, $20 a 12-pack of socks", "money", ["unhoused"], "Seasonal · winter", "Seasonal", null, null, "Denver", 25, ["For people experiencing homelessness"], "From their website, Nov 2026", false, 38, "Give to VOA Colorado", "https://www.voacolorado.org/?form=give&recurring=once"],
+      ["ss1", "sss", "Support Denver's only day shelter for people 60+", "money", ["seniors"], "Any time", "Standing", null, null, "Denver", 25, ["Up to 200 people a day"], "From Colorado Gives, Nov 2026", false, 39, "Give to SSS", "https://www.seniorsupportservices.org/donate"],
+      ["a1", "alh", "Help older neighbors: rides, yard work, tech help, friendly visits", "time", ["seniors"], "Flexible · do what you can, when you can", "Standing", null, null, "Denver", 25, ["Snow shoveling in winter"], "From their website, Nov 2026", false, 40, "See A Little Help", "https://alittlehelp.org/volunteer/"],
+      ["a2", "alh", "Service Saturday: group yard work for older adults", "time", ["seniors"], "Seasonal · spring and fall", "Seasonal", ["Weekends"], ["small", "large"], "Denver", 25, ["Bring friends or coworkers"], "From their website, Nov 2026", false, 41, "See Service Saturday", "https://alittlehelp.org/service-saturdays/"],
+      ["a3", "alh", "Give: $5,000 supplies a Service Saturday for 100 homes", "money", ["seniors"], "Any time", "Standing", null, null, "Denver", 25, ["Pay-what-you-can for members"], "From Colorado Gives, Nov 2026", false, 42, "Give to A Little Help", "https://alittlehelp.org/donate/"],
+      ["f1", "dsf", "Fund scholarships and Future Centers in DPS high schools", "money", ["education"], "Any time", "Standing", null, null, "Denver", 25, ["15 Future Centers"], "From their website, Nov 2026", false, 43, "Give to DSF", "https://denverscholarship.org/get-involved/donate/"],
+      ["f2", "dsf", "Volunteer roles are filled by direct recruitment", "skills", ["education"], "Contact their volunteer manager", "Standing", null, null, "Denver", 25, ["Ask before applying"], "From their website, Nov 2026", false, 44, "See volunteer info", "https://denverscholarship.org/get-involved/volunteer-opportunities/"],
+      ["up1", "uplift", "Fund full-time Teacher/Mentors in Denver schools", "money", ["education"], "Any time · one-time or monthly", "Standing", null, null, "Denver", 25, ["Colorado Child Care tax credit"], "From their website, Nov 2026", false, 45, "Give to Colorado UpLift", "https://coloradouplift.org/donate"],
+      ["i1", "ihdf", "Be a Learning Partner: weekly tutoring and mentoring", "time", ["education"], "Weekly for a school semester", "Standing", ["Weekdays"], null, "Boulder", 30, ["Boulder, Lafayette, Longmont, Frederick"], "From their website, Nov 2026", false, 46, "See I Have A Dream", "https://www.ihaveadreamboulder.org/volunteer"],
+      ["fb1", "fbr", "Sort and pack food at the Denver distribution center", "time", ["food"], "Mon–Sat shifts · register in advance", "Standing", ["Weekdays", "Weekends"], ["solo", "small", "large"], "Denver", 35, ["10700 E. 45th Ave.", "Groups of 5+ welcome"], "From their website, Nov 2026", false, 47, "See volunteer shifts", "https://www.foodbankrockies.org/volunteer/"],
+      ["fb2", "fbr", "Give: helps provide 180,000+ meals a day", "money", ["food"], "Any time", "Standing", null, null, "Denver", 35, ["Colorado and Wyoming"], "From their website, Nov 2026", false, 48, "Give to the Food Bank", "https://give.foodbankrockies.org/page/76289/donate/1"],
+      ["cf1", "cfs", "Warehouse shift: sort, restock and repackage food", "time", ["food"], "3-hour shifts, Mon–Fri", "Standing", ["Weekdays"], null, "Louisville", 30, ["Ages 12+ with an adult", "650 S. Taylor Ave., Louisville"], "From their website, Nov 2026", false, 49, "See volunteer roles", "https://www.communityfoodshare.org/volunteer/"],
+      ["cf2", "cfs", "Blue Spruce Neighbors: deliver food to seniors", "time", ["food"], "Two shifts a month for six months", "Monthly", null, null, "Louisville", 30, ["Training required"], "From their website, Nov 2026", false, 50, "See volunteer roles", "https://www.communityfoodshare.org/volunteer/"],
+      ["cf3", "cfs", "Donate food or host a food or fund drive", "goods", ["food"], "Ongoing", "Standing", null, null, "Louisville", 30, ["Good for schools and offices"], "From their website, Nov 2026", false, 51, "See how to host a drive", "https://www.communityfoodshare.org/food-fund-drive/"],
+      ["wd1", "wdw", "Help at a free Mobile Food Market", "time", ["food"], "Twice a week, around Denver", "Weekly", null, null, "Denver", 25, ["Bilingual volunteers needed"], "From their website, Nov 2026", false, 52, "See volunteer options", "https://wedontwaste.org/volunteerjobs"],
+      ["wd2", "wdw", "We Rescue: pick up surplus food and deliver it to a nonprofit", "time", ["food"], "On your schedule · uses the We Rescue app", "Standing", null, ["solo"], "Denver", 25, ["Choose your own time"], "From their website, Nov 2026", false, 53, "See We Rescue", "https://wedontwaste.org/volunteerjobs"],
+      ["mc1", "metro", "Warehouse: inspect, clean and sort 2–3 tons of food a day", "time", ["food"], "Weekdays, evenings and weekends", "Standing", ["Weekdays", "Evenings", "Weekends"], null, "Denver", 25, ["Teens and groups welcome"], "From public listings, Nov 2026", false, 54, "See volunteer info", "https://metrocaring.org/get-involved/volunteer/"],
+      ["mc2", "metro", "Give: $250+ can earn a 25% Enterprise Zone tax credit", "money", ["food"], "Any time", "Standing", null, null, "Denver", 25, ["Food donations welcome too"], "From their website, Nov 2026", false, 55, "Give to Metro Caring", "https://www.metrocaring.org/donate"],
+      ["s3", "sfc", "Urgent items: men's underwear and jeans, towels, toiletries", "goods", ["unhoused"], "Drop off daily · back alley of 2323 Curtis St.", "Standing", null, null, "Denver", 25, ["Ring the Donation Station bell", "Shoes and jackets ongoing"], "From their website, Nov 2026", false, 60, "See the full list", "https://www.sfcdenver.org/donate/in-kind/"],
+      ["j3", "joshua", "Christmas Store: give toys, or $120 for one parent shopping for two kids", "goods", ["holiday"], "Seasonal · unwrapped toys due Mon, Nov 30", "Seasonal", null, null, "Denver", 20, ["Parents pay $5 a gift", "Amazon wish list too"], "From their website, Nov 2026", false, 61, "See Christmas 2026", "https://milehighmin.org/christmas-2026/"],
+      ["ss2", "sss", "Serve meals, or help in the clothing room, food bank or garden", "time", ["seniors"], "Ongoing · 3–4 volunteers at a time", "Standing", null, null, "Denver", 25, ["Ages 18+", "846 E. 18th Ave."], "From their website, Nov 2026", false, 62, "See how to volunteer", "https://www.seniorsupportservices.org/get-involved"],
+      ["ss3", "sss", "Make and drop off 60–80 sack lunches", "goods", ["seniors"], "Any weekday · sign up for a day", "Standing", ["Weekdays"], ["small", "large"], "Denver", 25, ["Good for families and groups"], "From their website, Nov 2026", false, 63, "See the sack lunch program", "https://www.seniorsupportservices.org/get-involved"],
+      ["up2", "uplift", "Adopt an UpLift family: gifts from their wish list", "goods", ["holiday"], "Seasonal · unwrapped gifts due Thu, Dec 10", "Seasonal", null, null, "Denver", 25, ["Wish lists out Nov 12", "Individuals, families or companies"], "From their website, Nov 2026", false, 64, "See Adopt a Family", "https://www.coloradouplift.org/get-involved"],
+      ["up3", "uplift", "Holiday gift-wrapping party", "time", ["holiday"], "Sat, Dec 14 or Mon, Dec 16 · about 2 hours", "One-time", null, ["solo", "small", "large"], "Denver", 25, ["Wrapping supplies welcome too"], "From their website, Nov 2026", false, 65, "See the wrapping party", "https://www.coloradouplift.org/get-involved"],
+      ["up4", "uplift", "Career fair presenter at a middle or high school", "skills", ["education"], "Fall and spring · 1–2 hours", "One-time", ["Weekdays"], null, "Denver", 25, ["Share your career path"], "From their website, Nov 2026", false, 66, "See career volunteering", "https://www.coloradouplift.org/get-involved"],
+      ["sv1", "savio", "Give to in-home family therapy for Colorado kids", "money", ["mental"], "Any time · one-time or recurring", "Standing", null, null, "Denver", 20, ["Medicaid families served at home"], "From their website and Form 990, Nov 2026", false, 70, "Give to Savio", "https://www.saviohouse.org/general-donation"],
+      ["sv2", "savio", "Bedroom furniture for Bluestem families, and items from a family needs list", "goods", ["mental"], "Ongoing · ask what’s needed now", "Standing", null, null, "Denver", 20, ["For parents in recovery"], "From their website and Form 990, Nov 2026", false, 71, "See how to help", "https://www.saviohouse.org/"],
+      ["am1", "amigas", "Year-round Empowerment Fund: groceries, rent, utilities and mental health", "money", ["families"], "Any time", "Standing", null, null, "Denver", 25, ["Families referred by school social workers"], "From their website and Form 990, Nov 2026", false, 72, "Give to Amigas in Action", "https://www.amigasinaction.org/donate"],
+      ["dh1", "drm", "Turkey Drive: donate a frozen turkey (12+ lbs) or Thanksgiving sides", "goods", ["holiday"], "Seasonal · through Thanksgiving week", "Seasonal", null, null, "Denver", 25, ["Lawrence Street Shelter or Ministry Outreach Center", "Stuffing, potatoes, canned sides"], "From their website, Nov 2026", true, 0.5, "See drop-off locations", "https://denverrescuemission.org/turkeydrive/"],
+      ["dh2", "drm", "Fund holiday meals, or start your own Turkey Drive fundraiser", "money", ["holiday"], "Seasonal · November–December", "Seasonal", null, null, "Denver", 25, ["Goal: 15,000 turkeys", "Meals all season in their shelters"], "From their website, Nov 2026", false, 0.6, "Give to the Turkey Drive", "https://denverrescuemission.org/turkeydrive/"],
+      ["mh1", "mhuw", "Children's Holiday Party: run a toy drive or buy a gift from their wishlist", "goods", ["holiday"], "Seasonal · toy drives run until Fri, Dec 4", "Seasonal", null, ["solo", "small", "large"], "Denver", 25, ["New, unwrapped toys", "Goal: 1,000 children"], "From their website, Nov 2026", false, 0.7, "See how to give toys", "https://unitedwaydenver.org/event/childrens-holiday-party-2026-toy-drive/"],
+      ["mh2", "mhuw", "Sort toys and help set up the Children's Holiday Party", "time", ["holiday"], "Seasonal · December", "Seasonal", null, ["solo", "small", "large"], "Denver", 25, ["Toy sorting and event set-up", "1,200+ children served last year"], "From their website, Nov 2026", false, 0.8, "Register to volunteer", "https://unitedwaydenver.org/event/childrens-holiday-party-2026-toy-drive/"],
+      ["eh1", "efaa", "Holiday food wish list: tamale ingredients, turkey or ham, pie fixings", "goods", ["holiday"], "Seasonal · drop off weekdays 8:30–11:30 a.m.", "Seasonal", null, null, "Boulder", 30, ["Masa, corn husks, dried chiles", "Frozen turkey or ham"], "From their website, Nov 2026", false, 0.9, "See the holiday list", "https://www.efaa.org/donate/food-goods/"],
+      ["ih1", "ihdf", "Holiday wish list for their 11 program sites, items about $10–$60", "goods", ["holiday"], "Seasonal · Amazon wish list", "Seasonal", null, null, "Boulder", 30, ["Classroom and volunteer supplies", "Used all year"], "From their website, Nov 2026", false, 1.0, "See the wish list", "https://www.ihaveadreamboulder.org/news?category=Holiday"],
+      ["ih2", "ihdf", "Holiday cards designed by Dreamer Scholars: 10 for $20", "money", ["holiday"], "Seasonal · available now", "Seasonal", null, null, "Boulder", 30, ["Every pack supports their programs"], "From their website, Nov 2026", false, 1.1, "Get the cards", "https://www.ihaveadreamboulder.org/news/share-the-season-with-dreamer-scholar-art-holiday-cards"]
+    ];
+    const NEEDS = ROWS.map((r) => ({ id: r[0], org: r[1], ask: r[2], type: r[3], causes: r[4], cadence: r[5], often: r[6], when: r[7], groups: r[8], town: r[9], mins: r[10], badges: r[11], confirmed: r[12], urgent: r[13], order: r[14], actText: r[15], href: r[16] || '' }));
+    const counts = {};
+    ORGS.forEach((o) => { counts[o.id] = { time: 0, money: 0, goods: 0, skills: 0 }; });
+    NEEDS.forEach((n) => { counts[n.org][n.type] += 1; });
+
+    const selC = Object.keys(st.causes).filter((k) => st.causes[k]);
+    const selW = Object.keys(st.ways).filter((k) => st.ways[k]);
+    const causes = CAUSES.map((c) => {
+      const on = !!st.causes[c[0]];
+      return {
+        name: c[1], meta: ORGS.filter((o) => o.causes.indexOf(c[0]) >= 0).length + ' organizations' + (c[0] === 'holiday' ? ' · temporary' : ''), pressed: String(on),
+        pick: () => { const x = Object.assign({}, st.causes); x[c[0]] = !on; set({ causes: x }); },
+        style: 'display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;min-height:72px;border-radius:4px;cursor:pointer;color:#18303C;box-sizing:border-box;width:100%;background:#FFFFFF;border:2px solid ' + (on ? '#18303C' : '#C9D6DC') + (on ? ';' : ''),
+        markStyle: 'flex:none;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;' + (on ? 'background:#18303C' : 'border:2px solid #9FB2BC'),
+        checkStyle: 'opacity:' + (on ? 1 : 0)
+      };
+    });
+    const wayOff = { time: 40, money: 0, goods: 56, skills: 16 };
+    const wayTile = (k) => {
+      const on = !!st.ways[k];
+      return {
+        pressed: String(on),
+        toggle: () => { const w = Object.assign({}, st.ways); w[k] = !on; set({ ways: w }); },
+        style: 'display:flex;align-items:center;gap:14px;padding:16px 18px;min-height:92px;border-radius:4px;cursor:pointer;color:#18303C;box-sizing:border-box;width:100%;border:2px solid ' + (on ? T[k].base : '#C9D6DC') + ';background:' + (on ? T[k].soft : '#FFFFFF') + (on ? ';' : ''),
+        markStyle: 'flex:none;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;' + (on ? 'background:#18303C' : 'border:2px solid #9FB2BC'),
+        checkStyle: 'opacity:' + (on ? 1 : 0),
+        pill: 'display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px 0 10px;border-radius:999px;font-size:14px;font-weight:700;cursor:pointer;border:1.5px solid ' + (on ? T[k].base : '#9FB2BC') + ';background:' + (on ? T[k].soft : '#FFFFFF') + ';color:' + (on ? T[k].ink : '#4D6370'),
+        shape: shapeStyle(k, 12)
+      };
+    };
+
+
+    const SHORT = { unhoused: 'Unhoused', families: 'Family support', education: 'Education', food: 'Food insecurity', seniors: 'Seniors', mental: 'Mental health', holiday: 'Holiday giving' };
+    const peakVals = {};
+    CAUSES.forEach((c, i) => {
+      const on = !!st.causes[c[0]]; const cx = Math.round(110 + (880 / Math.max(1, CAUSES.length - 1)) * i);
+      const n = ORGS.filter((o) => o.causes.indexOf(c[0]) >= 0).length;
+      const top = on ? Math.max(90, 270 - 30 * n) : 300;
+      peakVals['pk' + i] = {
+        cls: on ? 'mlbl on' : 'mlbl off', cx: String(cx), cy: String(top), ty: String(top - 14), label: SHORT[c[0]],
+        pts: (cx - 105) + ',345 ' + cx + ',' + top + ' ' + (cx + 105) + ',345',
+        poly: on ? 'fill:#F8DCC4;stroke:#18303C;stroke-width:1.2;stroke-linejoin:round' : 'fill:rgba(255,255,255,0.35);stroke:#9FB2BC;stroke-width:1;stroke-linejoin:round',
+        flag: on ? 'fill:#E89A5B' : 'fill:none',
+        lbl: 'position:absolute;white-space:nowrap;pointer-events:none;left:calc(8px + (100% - 16px) * ' + (cx / 1100).toFixed(4) + ');top:calc(8px + (100% - 8px) * ' + ((top - 12) / 450).toFixed(4) + ');transform:translate(-50%,-100%);' + "font-family:'IBM Plex Mono',monospace;font-size:12px;" + (on ? 'color:#18303C;font-weight:500' : 'color:#4D6370')
+      };
+    });
+    const MCOL = { time: '#E89A5B', money: '#B8923A', goods: '#3B6755', skills: '#5A8FB0' };
+    const mpts = (k, x, y) => {
+      if (k === 'money') return x + ',' + (y - 10) + ' ' + (x + 10) + ',' + y + ' ' + x + ',' + (y + 10) + ' ' + (x - 10) + ',' + y;
+      if (k === 'goods') return (x - 8) + ',' + (y - 8) + ' ' + (x + 8) + ',' + (y - 8) + ' ' + (x + 8) + ',' + (y + 8) + ' ' + (x - 8) + ',' + (y + 8);
+      const n = k === 'skills' ? 6 : 14; const out = [];
+      for (let j = 0; j < n; j++) { const ang = (Math.PI * 2 * j) / n + (k === 'skills' ? Math.PI / 6 : 0); out.push((x + 9 * Math.cos(ang)).toFixed(1) + ',' + (y + 9 * Math.sin(ang)).toFixed(1)); }
+      return out.join(' ');
+    };
+    const trailVals = {};
+    KINDS.forEach((k, i) => {
+      const on = !!st.ways[k]; const ex = [190, 410, 690, 910][i];
+      trailVals['tr' + i] = {
+        d: 'M550 432 C550 410 ' + ex + ' 402 ' + ex + ' 374',
+        line: on ? 'stroke:' + MCOL[k] + ';stroke-width:2.6;stroke-linecap:round' : 'stroke:#9FB2BC;stroke-width:1;stroke-dasharray:3 5',
+        mpts: mpts(k, ex, 374),
+        mark: on ? 'fill:' + T[k].base + ';stroke:#18303C;stroke-width:1' : 'fill:#FFFFFF;stroke:#9FB2BC;stroke-width:1',
+        tx: String(ex + 16), ty: '378', label: T[k].label.toUpperCase(),
+        lbl: 'position:absolute;white-space:nowrap;pointer-events:none;left:calc(8px + (100% - 16px) * ' + ((ex + 16) / 1100).toFixed(4) + ');top:calc(8px + (100% - 8px) * ' + (374 / 450).toFixed(4) + ');transform:translate(0,-50%);' + "font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.08em;" + (on ? 'color:#18303C;font-weight:500' : 'color:#4D6370')
+      };
+    });
+    const matched = ORGS.filter((o) => (selC.length === 0 || o.causes.some((c) => selC.indexOf(c) >= 0)) && (selW.length === 0 || selW.some((w) => counts[o.id][w] > 0))).sort((a, b) => a.mins - b.mins);
+    const waysText = selW.length ? selW.map((k) => T[k].label).join(', ') : 'any way to help';
+    const causesText = selC.length ? selC.map(causeName).join(', ') : 'Any cause';
+    const pillBase = 'display:inline-flex;align-items:center;gap:8px;padding:4px 12px 4px 8px;border-radius:999px;font-size:13px;font-weight:700;';
+    const orgCards = matched.map((o) => ({
+      name: o.name, place: (o.town === 'Remote' ? 'Remote · helps the whole metro' : o.town + ', CO · ' + o.mins + ' min from Golden') + (o.real ? '' : ' · Illustrative sample'),
+      causeChips: o.causes.map((c) => ({ label: causeName(c), style: 'padding:3px 10px;border-radius:999px;background:#F1F5F6;border:1px solid #C9D6DC;font-size:13px;font-weight:600;color:#18303C' })),
+      waysList: KINDS.filter((k) => counts[o.id][k] > 0).map((k) => {
+        const m = selW.length === 0 || selW.indexOf(k) >= 0;
+        return { text: T[k].label + ' · ' + counts[o.id][k], pillStyle: pillBase + (m ? 'background:' + T[k].soft + ';color:' + T[k].ink : 'background:#FFFFFF;color:#4D6370;border:1px dashed #9FB2BC'), shapeStyle: shapeStyle(k, 12) + (m ? '' : ';opacity:0.45') };
+      }),
+      confirmed: o.confirmed, open: go('org')
+    }));
+
+
+    const townCount = {}; matched.forEach((o) => { townCount[o.town] = (townCount[o.town] || 0) + 1; });
+    const townArr = Object.keys(townCount).map((t) => ({ t: t, n: townCount[t] })).sort((a, b) => b.n - a.n);
+    const tMax = townArr.length ? townArr[0].n : 1;
+    const townRows = townArr.map((x) => ({ label: x.t === 'Remote' ? 'Remote (helps the whole metro)' : x.t + ', CO', count: x.n + (x.n === 1 ? ' organization' : ' organizations'), bar: 'width:' + Math.round(100 * x.n / tMax) + '%;height:100%;background:#18303C' }));
+    const needTot = KINDS.map((k) => ({ k: k, n: matched.reduce((sum, o) => sum + counts[o.id][k], 0) }));
+    const nMax = Math.max.apply(null, needTot.map((x) => x.n).concat([1]));
+    const needRows = needTot.map((x) => { const on = selW.length === 0 || selW.indexOf(x.k) >= 0; return { label: T[x.k].label, count: x.n + (x.n === 1 ? ' need' : ' needs'), shape: shapeStyle(x.k, 14) + (on ? '' : ';opacity:0.4'), bar: 'width:' + Math.round(100 * x.n / nMax) + '%;height:100%;background:' + (on ? T[x.k].base : '#C9D6DC') }; });
+    const totalNeeds = needTot.filter((x) => selW.length === 0 || selW.indexOf(x.k) >= 0).reduce((sum, x) => sum + x.n, 0);
+    const near = matched.filter((o) => o.mins > 0);
+    const closestText = near.length ? 'Closest: ' + near[0].name + ', ' + near[0].mins + ' min from Golden' + (near[0].real ? '' : ' (illustrative)') : '';
+    const orgChips = matched.map((o) => ({ open: openOrg(o.id), name: o.name + (o.real ? '' : ' (illustrative)'), place: o.town === 'Remote' ? 'Remote' : o.town + ', CO · ' + o.mins + ' min from Golden' }));
+    const mapVals = Object.assign({}, peakVals, trailVals, { mapLabel: 'Trail map. ' + (selC.length ? selC.length + ' peaks lit' : 'No peaks lit') + ', ' + (selW.length ? selW.length + ' trails lit' : 'no trails lit') + '. The map redraws as you choose.', mapCount: matched.length + (matched.length === 1 ? ' ORGANIZATION' : ' ORGANIZATIONS') + ' FIT' });
+    const whereSel = st.whereSel || 'any', whenSel = st.whenSel || 'Any', oftenSel = st.oftenSel || 'Any', whoSel = st.whoSel || 'Any', sortSel = st.sort || 'Soonest';
+    const driveMax = { d15: 15, d30: 30, d45: 45 }[whereSel] || 999;
+    const townSel = (whereSel === 'any' || /^d\d+$/.test(whereSel)) ? null : whereSel;
+    const whoKey = { 'Solo': 'solo', 'Small group (2–4)': 'small', 'Large group (5+)': 'large' }[whoSel];
+    const selStyle = (on) => 'min-height:44px;padding:0 34px 0 12px;border-radius:999px;font-size:14px;font-weight:600;color:#18303C;background:#FFFFFF;cursor:pointer;max-width:100%;border:' + (on ? '2px solid #18303C' : '1.5px solid #9FB2BC');
+    const decorate = (n) => {
+      const saved = !!st.saved[n.id];
+      return Object.assign({}, n, {
+        openOrg: openOrg(n.org), openAct: openAct(n.id),
+        cardStyle: 'background:#FFFFFF;border:1px solid #C9D6DC;border-top:3px solid ' + T[n.type].base + ';border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:12px',
+        org: orgOf(n.org).name + (orgOf(n.org).real ? '' : ' (illustrative)'), place: n.town === 'Remote' ? 'Remote' : n.town + ', CO',
+        typeLabel: T[n.type].label, badgeStyle: badge(n.type), shapeStyle: shapeStyle(n.type, 12),
+        drive: n.mins ? n.mins + ' min drive' : 'From anywhere',
+        savedPressed: String(saved), saveLabel: saved ? 'Remove from your list' : 'Save to your list', heartFill: saved ? 'currentColor' : 'none',
+        toggleSave: () => { const s = Object.assign({}, st.saved); s[n.id] = !saved; set({ saved: s }); },
+        hasHref: !!n.href, noHref: !n.href, linkStyle: 'min-height:44px;padding:0 18px;border:0;border-radius:999px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;text-decoration:none;color:' + T[n.type].on + ';background:' + T[n.type].base,
+        hasSite: !!orgOf(n.org).site, noSite: !orgOf(n.org).site, siteHref: orgOf(n.org).site || '',
+        actLabel: n.actText, act: () => set({ screen: 'act', action: n.type, done: false }),
+        actStyle: 'min-height:44px;padding:0 18px;border:0;border-radius:999px;font-size:15px;font-weight:700;cursor:pointer;color:' + T[n.type].on + ';background:' + T[n.type].base,
+        vote: { n1: '2 of 4 in', fb1: '3 of 4 in', v1: '4 of 4 in', n2: '1 of 4 in' }[n.id] || 'No votes yet'
+      });
+    };
+    let filtered = NEEDS.filter((n) =>
+      (selC.length === 0 || n.causes.some((c) => selC.indexOf(c) >= 0)) && (selW.length === 0 || selW.indexOf(n.type) >= 0) &&
+      (townSel ? n.town === townSel : n.mins <= driveMax) &&
+      (whenSel === 'Any' || !n.when || n.when.indexOf(whenSel) >= 0) &&
+      (oftenSel === 'Any' || n.often === 'Standing' || n.often === oftenSel) &&
+      (!whoKey || !n.groups || n.groups.indexOf(whoKey) >= 0));
+    if (sortSel === 'Closest') filtered = filtered.slice().sort((a, b) => a.mins - b.mins);
+    else if (sortSel === 'Most urgent') filtered = filtered.slice().sort((a, b) => (b.urgent ? 1 : 0) - (a.urgent ? 1 : 0));
+    else filtered = filtered.slice().sort((a, b) => a.order - b.order);
+    const cards = filtered.map(decorate);
+    const savedList = NEEDS.filter((n) => st.saved[n.id]).map(decorate);
+
+    const acts = {
+      time: { title: 'Register for the Winter Wonderland', where: 'You will finish on Thriving Families’ own registration form for the Holiday Reunion on Saturday, Dec 12 at 191 Yuma St.', steps: ['Pick Session A (11–1, arrive 10:30) or Session B (2–4, arrive 1:30).', 'Fill in their form. They have not posted role or age rules, so ask if you are bringing a group.', 'Want to help plan the event? Email Alexis Kihle at AlexisKihle@thrivingfamiliescolorado.org.'], btn: 'Open the registration form', opens: 'Opens their Jotform sign-up', contact: 'Questions: call or text 720-504-4624' },
+      goods: { title: 'Drop off baby supplies', where: 'Thriving Families, 191 Yuma St., Denver 80223. Use the main entrance and their team will help you.', steps: ['Bring items that are clean, smoke-free and in working order: car seats (accident-free, not expired), strollers, clothing up to 5T, formula (unopened), diapers and wipes.', 'Come Mon–Fri 9–4, or call or text 720-504-4624 to set an appointment. Ask for a tax receipt at drop-off.', 'Please skip toys, full-size cribs, adult clothing and recalled items. They can point you to other places that take those.'], btn: 'Get directions', opens: 'Or email info@thrivingfamiliescolorado.org for a large drive', contact: 'Drop-off questions: call or text 720-504-4624' },
+      money: { title: 'Start a monthly gift', where: 'You will finish on Thriving Families’ Colorado Gives page. We never handle money.', steps: ['New recurring gifts are matched by the Colorado Gives Foundation, up to $100 per gift, while the $250K match lasts.', 'Their campaign goal is $10,000. At last check: $150 from 2 donors.', 'Colorado Gives sends the receipt for your taxes.'], btn: 'Continue to ColoradoGives', opens: 'Opens their organization page, not the home page', contact: 'Receipts come from Colorado Gives' },
+      skills: { title: 'Offer to translate parent handouts', where: 'This goes straight to the Thriving Families team with the project details filled in.', steps: ['Project: English and Spanish handouts for families, in plain language.', 'About 6–10 hours, fully remote. Scope to be agreed with them.', 'They reply by email. We follow up if they don’t.'], btn: 'Open email draft', opens: 'Pre-filled subject and project summary', contact: 'Not quite your skill? Browse other scoped projects' }
+    };
+    const actRow = NEEDS.filter((n) => n.id === st.actId)[0] || NEEDS.filter((n) => n.type === (st.action || 'goods'))[0] || NEEDS[0];
+    const actOrg = orgOf(actRow.org);
+    const TF_RICH = { n1: 'goods', n2: 'time', n21: 'skills' };
+    const rich = TF_RICH[actRow.id] ? acts[TF_RICH[actRow.id]] : null;
+    const actHref = actRow.href || actOrg.site || '#';
+    const actHost = actHref.indexOf('mailto:') === 0 ? '' : actHref.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
+    const genericSteps = [actRow.cadence + '.'].concat(actRow.badges).concat([actRow.type === 'money' ? 'You give on ' + actOrg.name + '’s own donation page. Lookout never handles money.' : 'The next step happens on ' + actOrg.name + '’s website. Lookout never asks for your personal details.']);
+    const actSaved = !!st.saved[actRow.id];
+    const act = {
+      orgName: actOrg.name, typeLabel: T[actRow.type].label, badgeStyle: badge(actRow.type), shapeStyle: shapeStyle(actRow.type, 12),
+      title: rich ? rich.title : actRow.ask,
+      where: rich ? rich.where : actRow.cadence + ' · ' + (actRow.town === 'Remote' ? 'From anywhere' : actRow.town + ', CO'),
+      steps: (rich ? rich.steps : genericSteps).map((t, i) => ({ n: i + 1, text: t })),
+      btn: actRow.actText, href: actHref,
+      opens: actHost ? 'Opens ' + actHost + ' in a new tab' : 'Opens an email draft to them',
+      contact: actRow.confirmed,
+      btnStyle: 'display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:0 26px;border-radius:999px;font-size:17px;font-weight:700;text-decoration:none;color:' + T[actRow.type].on + ';background:' + T[actRow.type].base,
+      backToOrg: openOrg(actRow.org),
+      save: () => { const x = Object.assign({}, st.saved); x[actRow.id] = !actSaved; set({ saved: x }); }, saveLabel: actSaved ? 'Saved to your list' : 'Save for later',
+      others: NEEDS.filter((n) => n.org === actRow.org && n.id !== actRow.id).map((n) => ({ label: T[n.type].label + ' · ' + n.ask, go: openAct(n.id), style: 'min-height:44px;text-align:left;padding:8px 12px;border:0;border-radius:4px;font-size:15px;font-weight:600;line-height:1.35;cursor:pointer;color:' + T[n.type].ink + ';background:' + T[n.type].soft }))
+    };
+    act.hasOthers = act.others.length > 0;
+    const ogOrg = orgOf(st.orgId || 'mesa') || ORGS[0];
+    const ogInfo = ORG_INFO[ogOrg.id] || { desc: '', tag: '', address: '', phone: '', impact: '' };
+    const ogRate = RATINGS.filter((r) => r.id === ogOrg.id)[0];
+    const og = {
+      name: ogOrg.name, desc: ogInfo.desc, impact: ogInfo.impact, phone: ogInfo.phone, hasPhone: !!ogInfo.phone,
+      confirmed: ogOrg.confirmed, site: ogOrg.site || '#', donate: DONATE[ogOrg.id] || ogOrg.site || '#',
+      host: (ogOrg.site || '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''),
+      source: (ogRate && ogRate.cnSub.indexOf('%') > 0) ? 'From their website, Form 990 and Charity Navigator' : 'From their website',
+      chips: [ogOrg.town === 'Remote' ? 'Remote' : ogOrg.town + ', CO · ' + ogOrg.mins + ' min from Golden'].concat(ogInfo.address ? [ogInfo.address] : []).concat(ogInfo.tag ? [ogInfo.tag] : []),
+      causes: ogOrg.causes.map(causeName),
+      cnBig: ogRate ? ogRate.cnBig : 'Not checked yet', cnSub: ogRate ? ogRate.cnSub : 'Not in our research list yet', cnHref: ogRate ? ogRate.cnHref : 'https://www.charitynavigator.org/',
+      rows: NEEDS.filter((n) => n.org === ogOrg.id).map(decorate)
+    };
+
+    const monthDefs = [['Jan', 'Winter coats wind down'], ['Feb', 'Valentines for seniors'], ['Mar', ''], ['Apr', 'Earth Day cleanups'], ['May', ''], ['Jun', ''], ['Jul', 'School supplies'], ['Aug', 'Backpack drives'], ['Sep', ''], ['Oct', 'Coat drives open'], ['Nov', 'Holiday gifts and adopt-a-family'], ['Dec', 'Colorado Gives Day']];
+    const months = monthDefs.map((d, i) => ({ m: d[0] + (i === 10 ? ' · now' : ''), label: d[1], style: 'display:flex;flex-direction:column;gap:6px;min-height:96px;padding:10px;border-radius:4px;color:#18303C;background:' + (d[1] ? '#E3EEF2' : '#F1F5F6') + ';border:' + (i === 9 ? '2px solid #18303C' : '1px solid transparent') }));
+
+    return {
+      steps: steps, extras: extras, menuLabel: menuLabel, menuShort: menuShort, menuOpen: !!st.menuOpen, menuExpanded: String(!!st.menuOpen),
+      menuAria: 'Journey menu, ' + menuLabel, menuChevron: st.menuOpen ? 'M6 15l6-6 6 6' : 'M6 9l6 6 6-6',
+      toggleMenu: () => set({ menuOpen: !st.menuOpen }), menuKey: (e) => { if (e && e.key === 'Escape' && st.menuOpen) set({ menuOpen: false }); },
+      ratingRows: RATINGS, causes: causes,
+      sugKinds: sugKinds, sugOrg: st.sugOrg || '', sugText: st.sugText || '', sugSent: !!st.sugSent, sugNotSent: !st.sugSent,
+      sugPlaceholder: SUG_KINDS.filter((k) => k[0] === sugKind)[0][2],
+      sugHint: (st.sugText || '').trim() ? 'No name or email is sent.' : 'Write a suggestion to send it.',
+      setSugOrg: (e) => set({ sugOrg: e.target.value }), setSugText: (e) => set({ sugText: e.target.value }),
+      sendSuggestion: (e) => { if (e && e.preventDefault) e.preventDefault(); if ((st.sugText || '').trim()) set({ sugSent: true }); },
+      sugAgain: () => set({ sugSent: false, sugText: '', sugOrg: '' }),
+      og: og, isOrgTF: st.screen === 'org' && ogOrg.id === 'mesa', isOrgGen: st.screen === 'org' && ogOrg.id !== 'mesa',
+      whereSel: whereSel, whenSel: whenSel, oftenSel: oftenSel, whoSel: whoSel, sortSel: sortSel,
+      sel: { whereSel: selStyle(whereSel !== 'any'), whenSel: selStyle(whenSel !== 'Any'), oftenSel: selStyle(oftenSel !== 'Any'), whoSel: selStyle(whoSel !== 'Any'), sortSel: selStyle(false) },
+      pickWhere: (e) => set({ whereSel: e.target.value }), pickWhen: (e) => set({ whenSel: e.target.value }), pickOften: (e) => set({ oftenSel: e.target.value }), pickWho: (e) => set({ whoSel: e.target.value }), pickSort: (e) => set({ sort: e.target.value }),
+      clearFilters: () => set({ whereSel: 'any', whenSel: 'Any', oftenSel: 'Any', whoSel: 'Any', sort: 'Soonest', ways: {} }),
+      filterNote: cards.length + (cards.length === 1 ? ' way to help' : ' ways to help') + ' · drive times from Golden are approximate · Who applies to volunteer shifts only',
+      isHome: st.screen === 'home', isResults: st.screen === 'results', isOrg: st.screen === 'org',
+      isAct: st.screen === 'act', isShare: st.screen === 'share', isRatings: st.screen === 'ratings', isSuggest: st.screen === 'suggest',
+      goHome: go('home'), goResults: go('results'), goOrg: openOrg('mesa'), goShare: go('share'), goRatings: go('ratings'), goSuggest: go('suggest'),
+      wTime: wayTile('time'), wMoney: wayTile('money'), wGoods: wayTile('goods'), wSkills: wayTile('skills'),
+      tTime: wayTile('time'), tMoney: wayTile('money'), tGoods: wayTile('goods'), tSkills: wayTile('skills'),
+      townRows: townRows, needRows: needRows, orgChips: orgChips, closestText: closestText,
+      matchFacts: matched.length + (matched.length === 1 ? ' organization' : ' organizations') + ' in ' + townArr.length + (townArr.length === 1 ? ' place' : ' places') + ' with ' + totalNeeds + ' open ' + (totalNeeds === 1 ? 'need' : 'needs') + '. Drive times from Golden are approximate.',
+      mapLabel: mapVals.mapLabel, mapCount: mapVals.mapCount,
+      pk0: mapVals.pk0, pk1: mapVals.pk1, pk2: mapVals.pk2, pk3: mapVals.pk3, pk4: mapVals.pk4, pk5: mapVals.pk5, pk6: mapVals.pk6, tr0: mapVals.tr0, tr1: mapVals.tr1, tr2: mapVals.tr2, tr3: mapVals.tr3,
+      giveText: waysText, causeText: causesText,
+      statOpen: String(ROWS.length), statSkills: String(ROWS.filter((r) => r[3] === 'skills').length), statGoods: String(ROWS.filter((r) => r[3] === 'goods').length), statMoney: String(ROWS.filter((r) => r[3] === 'money').length),
+      matchHeadline: matched.length + (matched.length === 1 ? ' organization' : ' organizations'),
+      convergeSummary: causesText + ' + ' + waysText,
+      matchSub: 'Each one has a current need that fits ' + causesText.toLowerCase() + ' and ' + waysText.toLowerCase() + '.',
+      orgCards: orgCards, noMatches: matched.length === 0,
+      whereModes: [['drive', 'Near an address'], ['town', 'In a town']].map((m) => ({ label: m[1], pressed: String(st.whereMode === m[0]), style: chipStyle(st.whereMode === m[0]), pick: () => set({ whereMode: m[0] }) })),
+      isWhereDrive: st.whereMode === 'drive', isWhereTown: st.whereMode === 'town',
+      drives: single('drive', ['15 min', '30 min', '45 min', 'Any']),
+      town: st.town, pickTown: (e) => set({ town: e && e.target ? e.target.value : 'Anywhere' }),
+      townStyle: 'min-height:46px;border-radius:4px;padding:0 12px;font-size:15px;font-weight:600;cursor:pointer;color:#18303C;background:#FFFFFF;border:' + (st.town !== 'Anywhere' ? '2px solid #18303C' : '1.5px solid #9FB2BC'),
+      whenChips: multi(['Weekdays', 'Evenings', 'Weekends']),
+      oftenChips: multi(['One-time', 'Weekly', 'Monthly', 'Seasonal']),
+      whoChips: ['Solo', 'Small group (2–4)', 'Large group (5+)'].map((l) => ({ label: l, pressed: String(st.who === l), style: chipStyle(st.who === l), pick: () => set({ who: st.who === l ? 'Any' : l }) })),
+      sorts: single('sort', ['Soonest', 'Closest', 'Most urgent']),
+      digests: single('digest', ['Weekly', 'Monthly', 'Off']),
+      cards: cards, noResults: cards.length === 0,
+      resultsTitle: cards.length + (cards.length === 1 ? ' way' : ' ways') + ' to help' + (selC.length === 1 ? ' · ' + causeName(selC[0]) : selC.length > 1 ? ' · ' + selC.length + ' causes' : ''),
+      pickedCauses: selC.map((c) => ({ label: causeName(c), style: 'padding:5px 12px;border-radius:999px;background:#FFFFFF;border:1.5px solid #18303C;font-size:13px;font-weight:700;color:#18303C' })),
+      pickedWays: selW.map((k) => ({ label: T[k].label, pillStyle: pillBase + 'background:' + T[k].soft + ';color:' + T[k].ink, shapeStyle: shapeStyle(k, 12) })),
+      savedList: savedList, savedCount: savedList.length, noSaved: savedList.length === 0,
+      actTime: openAct('n2'),
+      actGoods: openAct('n1'),
+      actMoney: openAct('n20'),
+      actSkills: openAct('n21'),
+      act: act, done: !!st.done, notDone: !st.done, markDone: () => set({ done: true }),
+      copy: () => set({ copied: true }), copyLabel: st.copied ? 'Copied' : 'Copy',
+      months: months,
+      log: [
+        { date: 'Oct 12', text: 'Dropped off diapers at Thriving Families' },
+        { date: 'Sep 21', text: 'Sorting shift at Food Bank of the Rockies, 3 hours' },
+        { date: 'Jul 18', text: 'School clothes to Clothes To Kids of Denver' },
+        { date: 'Apr 22', text: 'Service Saturday with A Little Help, 4 hours' }
+      ]
+    };
+  }
+}
+
+window.__lookoutStart(Component);
+</script>
+</body>
+</html>
